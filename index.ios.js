@@ -1,4 +1,3 @@
-
 import React, {Component} from 'react';
 import {
     Alert,
@@ -34,7 +33,7 @@ class QuoteList extends Component {
         const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         const self = this;
 
-        axios.get('http://91.216.75.118:8084/api/quotes/?user_id=4')
+        axios.get('http://myquotes.io/api/quotes/?user_id=4')
             .then(function (response) {
                 var data = response.data;
                 self.setState({

@@ -10,7 +10,7 @@
     "react": "16.0.0-alpha.6",
     "react-native": "0.44.0",
     "react-native-navigation": "latest",
-    "react-native-swipe-list-view": "^0.4.1"
+    "react-native-tag-input": "0.0.14"
   },
   "devDependencies": {
     "babel-jest": "20.0.1",

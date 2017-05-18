@@ -19,7 +19,7 @@ export default class SideMenu extends Component {
 
         <Button
           onPress={this.buttonPress.bind(this)}
-          title="Button"
+          title="Close"
           color={Color.primary}
         />
 

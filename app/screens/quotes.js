@@ -4,7 +4,8 @@ import {
   View,
   Text,
   ListView,
-  Alert
+  Alert,
+  Button
 } from 'react-native';
 
 import {Navigation} from 'react-native-navigation';
@@ -33,6 +34,7 @@ export default class Quotes extends Component {
 
   constructor(props) {
     super(props);
+
     this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
     const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 
@@ -56,16 +58,30 @@ export default class Quotes extends Component {
 
   render() {
     return (
-      <ListView
-        dataSource={this.state.dataSource}
-        renderRow={(quote) =>
-          <View style={style.cell}>
-            <Text style={style.title}> {quote.title} </Text>
-            <Text style={style.author}> {quote.author} </Text>
-            <Text style={style.body}> {quote.body} </Text>
-          </View>
-        }
-      />
+      <View style={{flex: 1}}>
+        <View style={style.filterCell}>
+          <Button
+            onPress={this.categoriesButtonPress.bind(this)}
+            color={Color.primary}
+            title="Categories"
+          />
+          <Button
+            onPress={this.authorsButtonPress.bind(this)}
+            color={Color.primary}
+            title="Authors"
+          />
+        </View>
+        <ListView
+          dataSource={this.state.dataSource}
+          renderRow={(quote) =>
+            <View style={style.cell}>
+              <Text style={style.title}> {quote.title} </Text>
+              <Text style={style.author}> {quote.author} </Text>
+              <Text style={style.body}> {quote.body} </Text>
+            </View>
+          }
+        />
+      </View>
     );
   }
 
@@ -77,9 +93,37 @@ export default class Quotes extends Component {
       });
     }
     if (event.id === 'add') {
-      Alert.alert('NavBar', 'Add button pressed');
+      this.props.navigator.showModal({
+        title: "Add Quote",
+        screen: "addQuote"
+      });
     }
   }
+
+  categoriesButtonPress() {
+    this.props.navigator.showLightBox({
+      screen: "filterQuotes",
+      style: {
+        backgroundBlur: "dark"
+      },
+      passProps: {
+        greeting: 'hey there categories'
+      },
+    });
+  }
+
+  authorsButtonPress() {
+    this.props.navigator.showLightBox({
+      screen: "filterQuotes",
+      style: {
+        backgroundBlur: "dark"
+      },
+      passProps: {
+        greeting: 'hey there authors'
+      },
+    });
+  }
+
 }
 
 const style = StyleSheet.create({
@@ -100,5 +144,10 @@ const style = StyleSheet.create({
   body: {
     paddingTop: 8,
     paddingBottom: 8
+  },
+  filterCell: {
+    height: 40,
+    flexDirection: 'row',
+    justifyContent: 'space-around'
   }
 });

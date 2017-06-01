@@ -101,25 +101,63 @@ export default class Quotes extends Component {
   }
 
   categoriesButtonPress() {
+
+    var categories = [
+      {
+        id: "1",
+        name: "category1"
+      },
+      {
+        id: "2",
+        name: "category2"
+      },
+      {
+        id: "3",
+        name: "category3"
+      }
+    ];
+
     this.props.navigator.showLightBox({
       screen: "filterQuotes",
       style: {
         backgroundBlur: "dark"
       },
       passProps: {
-        greeting: 'hey there categories'
+        filter: 'Categories',
+        properties: categories
       },
     });
   }
 
   authorsButtonPress() {
+
+    var authors = [
+      {
+        id: "1",
+        name: "author1"
+      },
+      {
+        id: "2",
+        name: "author2"
+      },
+      {
+        id: "3",
+        name: "author3"
+      },
+      {
+        id: "4",
+        name: "author4"
+      }
+    ];
+
     this.props.navigator.showLightBox({
       screen: "filterQuotes",
       style: {
         backgroundBlur: "dark"
       },
       passProps: {
-        greeting: 'hey there authors'
+        filter: 'Authors',
+        properties: authors
       },
     });
   }

@@ -18,17 +18,11 @@ export default class FilterQuotes extends Component {
     const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 
     this.state = {
-      dataSource: ds.cloneWithRows(this.props.properties)
+      dataSource: ds.cloneWithRows(this.props.properties),
+      selected: {},
+      opacity: 1
     };
 
-    var selected = {}
-
-    let properties = this.props.properties
-    properties.forEach(function (property) {
-      selected[property.name] = false
-    })
-
-    this.state.selected = selected
   }
 
   render() {
@@ -40,14 +34,14 @@ export default class FilterQuotes extends Component {
 
         <ListView
           dataSource={this.state.dataSource}
-          renderRow={(property) =>
-            <TouchableOpacity onPress={() => this.onRowPress(property)}>
+          renderRow={(property, sectionIndex, rowIndex) =>
+            <TouchableOpacity onPress={() => this.onRowPress(property, rowIndex)}>
               <View style={styles.cell}>
                 <Text style={styles.property}> {property.name} </Text>
                 <Image
                   style={styles.image}
                   resizeMode='cover'
-                  opacity={1}
+                  opacity={this.state.opacity}
                   source={require('../../img/checkmark.png')}
                 />
               </View>
@@ -63,14 +57,21 @@ export default class FilterQuotes extends Component {
     );
   }
 
-  onRowPress(property) {
-    let name = property.name
+  onRowPress(property, rowIndex) {
+    let id = property.id
 
-    this.state.selected[name] = this.state.selected[name] == true ? false : true
+    if (this.state.selected[id]) {
+      delete this.state.selected[id]
+      this.setState({opacity: 0})
+    } else {
+      this.state.selected[id] = true
+      this.setState({opacity: 1})
+    }
+
   }
 
   onDismissPress() {
-    console.log(this.state.selected)
+    this.props.callback(this.state.selected)
     this.props.navigator.dismissLightBox();
   }
 }

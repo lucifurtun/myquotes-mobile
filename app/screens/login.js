@@ -53,7 +53,7 @@ export default class Login extends Component {
     Navigation.startSingleScreenApp({
       screen: {
         screen: 'quotes',
-        title: 'myQuote'
+        title: 'myQuotes'
       },
       drawer: {
         left: {

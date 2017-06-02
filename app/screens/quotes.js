@@ -3,6 +3,7 @@ import {
   StyleSheet,
   View,
   Text,
+  WebView,
   ListView,
   Alert,
   Button
@@ -10,6 +11,23 @@ import {
 
 import {Navigation} from 'react-native-navigation';
 import Color from '../styles';
+import axios from 'axios';
+
+class Quote extends Component {
+  constructor() {
+    super();
+  }
+
+  render() {
+    return (
+      <View style={style.cell}>
+        <Text style={style.title}>{this.props.title}</Text>
+        <Text style={style.author}>{this.props.author}</Text>
+        <Text style={style.body}>{this.props.text}</Text>
+      </View>
+    );
+  }
+}
 
 export default class Quotes extends Component {
 
@@ -32,6 +50,42 @@ export default class Quotes extends Component {
     statusBarTextColorScheme: 'dark',
   };
 
+  localQuotes = []
+
+  localCategories = [
+    {
+      id: "1",
+      name: "category1"
+    },
+    {
+      id: "2",
+      name: "category2"
+    },
+    {
+      id: "3",
+      name: "category3"
+    }
+  ];
+
+  localAuthors = [
+    {
+      id: "1",
+      name: "author1"
+    },
+    {
+      id: "2",
+      name: "author2"
+    },
+    {
+      id: "3",
+      name: "author3"
+    },
+    {
+      id: "4",
+      name: "author4"
+    }
+  ];
+
   constructor(props) {
     super(props);
 
@@ -42,18 +96,39 @@ export default class Quotes extends Component {
       {
         title: "title 1",
         author: "author 1",
-        body: "body 1"
+        body: "body 1",
+        author_id: '1',
+        category_id: '2'
       },
       {
         title: "title 2",
         author: "author 2",
-        body: "body 2"
+        body: "body 2",
+        author_id: '2',
+        category_id: '2'
       }
     ];
 
+    const self = this;
+
     this.state = {
-      dataSource: ds.cloneWithRows(quotes)
+      dataSource: ds.cloneWithRows(quotes),
     };
+
+    axios.get('https://myquotes.io/api/quotes/?user_id=0')
+        .then(function (response) {
+            var data = response.data;
+            self.setState({
+                dataSource: ds.cloneWithRows(data.results),
+            });
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+
+    this.localQuotes = quotes
+
+
   }
 
   render() {
@@ -73,16 +148,18 @@ export default class Quotes extends Component {
         </View>
         <ListView
           dataSource={this.state.dataSource}
-          renderRow={(quote) =>
-            <View style={style.cell}>
-              <Text style={style.title}> {quote.title} </Text>
-              <Text style={style.author}> {quote.author} </Text>
-              <Text style={style.body}> {quote.body} </Text>
-            </View>
-          }
+          renderRow={this.renderRow.bind(this)}
         />
       </View>
     );
+  }
+
+  renderRow(quote) {
+    let title = quote.title ? quote.title : ''
+    let text = quote.text ? quote.text : ''
+    let author = quote.author ? (quote.author.name ? quote.author.name : '') : ''
+
+    return (<Quote title={title} text={text} author={author} />)
   }
 
   onNavigatorEvent(event) {
@@ -102,20 +179,7 @@ export default class Quotes extends Component {
 
   categoriesButtonPress() {
 
-    var categories = [
-      {
-        id: "1",
-        name: "category1"
-      },
-      {
-        id: "2",
-        name: "category2"
-      },
-      {
-        id: "3",
-        name: "category3"
-      }
-    ];
+    this.filterBy = 'Categories'
 
     this.props.navigator.showLightBox({
       screen: "filterQuotes",
@@ -123,32 +187,16 @@ export default class Quotes extends Component {
         backgroundBlur: "dark"
       },
       passProps: {
-        filter: 'Categories',
-        properties: categories
+        filter: this.filterBy,
+        properties: this.localCategories,
+        callback: (param) => this.modalDidClose(param)
       },
     });
   }
 
   authorsButtonPress() {
 
-    var authors = [
-      {
-        id: "1",
-        name: "author1"
-      },
-      {
-        id: "2",
-        name: "author2"
-      },
-      {
-        id: "3",
-        name: "author3"
-      },
-      {
-        id: "4",
-        name: "author4"
-      }
-    ];
+    this.filterBy = 'Authors'
 
     this.props.navigator.showLightBox({
       screen: "filterQuotes",
@@ -156,10 +204,24 @@ export default class Quotes extends Component {
         backgroundBlur: "dark"
       },
       passProps: {
-        filter: 'Authors',
-        properties: authors
+        filter: this.filterBy,
+        properties: this.localAuthors,
+        callback: (param) => this.modalDidClose(param)
       },
     });
+  }
+
+  modalDidClose(selected) {
+    let self = this
+
+    let filteredQuotes = this.localQuotes.filter( function(quote) {
+      if (self.filterBy === 'Authors') {
+        return selected[quote.author_id]
+      } else if (self.filterBy === 'Categories') {
+        return selected[quote.category_id]
+      }
+    })
+    console.log(filteredQuotes);
   }
 
 }
@@ -168,23 +230,26 @@ const style = StyleSheet.create({
   cell: {
     paddingTop: 8,
     paddingBottom: 8,
-    paddingLeft: 4,
-    paddingRight: 4,
+    paddingLeft: 8,
+    paddingRight: 8,
     borderBottomWidth: 1,
     borderColor: Color.lightBackground
   },
   title: {
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    fontSize: 16
   },
   author: {
+    fontSize: 16,
     color: Color.primary
   },
   body: {
+    fontSize: 16,
     paddingTop: 8,
     paddingBottom: 8
   },
   filterCell: {
-    height: 40,
+    height: 36,
     flexDirection: 'row',
     justifyContent: 'space-around'
   }

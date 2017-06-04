@@ -12,6 +12,7 @@ import {
 import {Navigation} from 'react-native-navigation';
 import Color from '../styles';
 import axios from 'axios';
+import HTMLView from 'react-native-htmlview';
 
 class Quote extends Component {
   constructor() {
@@ -23,7 +24,10 @@ class Quote extends Component {
       <View style={style.cell}>
         <Text style={style.title}>{this.props.title}</Text>
         <Text style={style.author}>{this.props.author}</Text>
-        <Text style={style.body}>{this.props.text}</Text>
+        <HTMLView
+          value={this.props.text}
+          stylesheet={style}
+        />
       </View>
     );
   }
@@ -243,7 +247,7 @@ const style = StyleSheet.create({
     fontSize: 16,
     color: Color.primary
   },
-  body: {
+  p: {
     fontSize: 16,
     paddingTop: 8,
     paddingBottom: 8

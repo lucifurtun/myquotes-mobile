@@ -5,7 +5,6 @@ import {
   Text,
   WebView,
   ListView,
-  Alert,
   Button
 } from 'react-native';
 
@@ -26,7 +25,7 @@ class Quote extends Component {
         <Text style={style.author}>{this.props.author}</Text>
         <HTMLView
           value={this.props.text}
-          stylesheet={style}
+          stylesheet={htmlStyle}
         />
       </View>
     );
@@ -54,41 +53,9 @@ export default class Quotes extends Component {
     statusBarTextColorScheme: 'dark',
   };
 
-  localQuotes = []
-
-  localCategories = [
-    {
-      id: "1",
-      name: "category1"
-    },
-    {
-      id: "2",
-      name: "category2"
-    },
-    {
-      id: "3",
-      name: "category3"
-    }
-  ];
-
-  localAuthors = [
-    {
-      id: "1",
-      name: "author1"
-    },
-    {
-      id: "2",
-      name: "author2"
-    },
-    {
-      id: "3",
-      name: "author3"
-    },
-    {
-      id: "4",
-      name: "author4"
-    }
-  ];
+  quotes = []
+  categories = [];
+  authors = [];
 
   constructor(props) {
     super(props);
@@ -96,42 +63,52 @@ export default class Quotes extends Component {
     this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
     const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 
-    var quotes = [
-      {
-        title: "title 1",
-        author: "author 1",
-        body: "body 1",
-        author_id: '1',
-        category_id: '2'
-      },
-      {
-        title: "title 2",
-        author: "author 2",
-        body: "body 2",
-        author_id: '2',
-        category_id: '2'
-      }
-    ];
-
     const self = this;
 
     this.state = {
-      dataSource: ds.cloneWithRows(quotes),
+      dataSource: ds.cloneWithRows(self.quotes),
     };
 
-    axios.get('https://myquotes.io/api/quotes/?user_id=0')
-        .then(function (response) {
-            var data = response.data;
-            self.setState({
-                dataSource: ds.cloneWithRows(data.results),
-            });
-        })
-        .catch(function (error) {
-            console.log(error);
+    let authorization = 'JWT ' + this.props.token;
+    let api = axios.create({
+      baseURL: 'https://myquotes.io/api/',
+      timeout: 1000,
+      headers: {'Authorization': authorization}
+    });
+
+    api.interceptors.request.use(request => {
+      console.log('Starting Request', request)
+      return request
+    });
+
+    api.get('quotes/')
+      .then( function(response) {
+        var quotes = response.data.results;
+        console.log(quotes);
+        self.setState({
+          dataSource: ds.cloneWithRows(quotes),
         });
+        self.quotes = quotes
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
 
-    this.localQuotes = quotes
+    api.get('authors/')
+      .then( function(response) {
+        self.authors = response.data
+      })
+      .catch( function(error) {
+        console.log(error);
+      })
 
+      api.get('categories/')
+        .then( function(response) {
+          self.categories = response.data
+        })
+        .catch( function(error) {
+          console.log(error);
+        })
 
   }
 
@@ -151,6 +128,7 @@ export default class Quotes extends Component {
           />
         </View>
         <ListView
+          enableEmptySections={true}
           dataSource={this.state.dataSource}
           renderRow={this.renderRow.bind(this)}
         />
@@ -192,7 +170,7 @@ export default class Quotes extends Component {
       },
       passProps: {
         filter: this.filterBy,
-        properties: this.localCategories,
+        properties: this.categories,
         callback: (param) => this.modalDidClose(param)
       },
     });
@@ -209,7 +187,7 @@ export default class Quotes extends Component {
       },
       passProps: {
         filter: this.filterBy,
-        properties: this.localAuthors,
+        properties: this.authors,
         callback: (param) => this.modalDidClose(param)
       },
     });
@@ -218,7 +196,7 @@ export default class Quotes extends Component {
   modalDidClose(selected) {
     let self = this
 
-    let filteredQuotes = this.localQuotes.filter( function(quote) {
+    let filteredQuotes = this.quotes.filter( function(quote) {
       if (self.filterBy === 'Authors') {
         return selected[quote.author_id]
       } else if (self.filterBy === 'Categories') {
@@ -245,16 +223,34 @@ const style = StyleSheet.create({
   },
   author: {
     fontSize: 16,
-    color: Color.primary
-  },
-  p: {
-    fontSize: 16,
-    paddingTop: 8,
+    color: Color.primary,
     paddingBottom: 8
   },
   filterCell: {
     height: 36,
     flexDirection: 'row',
     justifyContent: 'space-around'
+  }
+});
+
+const htmlStyle = StyleSheet.create({
+  p: {
+    fontSize: 16
+  },
+  strong: {
+    fontSize: 16,
+    fontWeight: 'bold'
+  },
+  em: {
+    fontSize: 16,
+    fontStyle: 'italic'
+  },
+  u: {
+    fontSize: 16,
+    textDecorationLine: 'underline'
+  },
+  s: {
+    fontSize: 16,
+    textDecorationLine: 'line-through'
   }
 });

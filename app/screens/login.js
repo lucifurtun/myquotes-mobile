@@ -4,11 +4,13 @@ import {
   StyleSheet,
   TextInput,
   Button,
+  AsyncStorage,
   ScrollView
 } from 'react-native';
 
 import {Navigation} from 'react-native-navigation';
 import Color from '../styles';
+import axios from 'axios';
 
 export default class Login extends Component {
   constructor(props) {
@@ -17,18 +19,28 @@ export default class Login extends Component {
       textEmail: '',
       textPassword: ''
     };
+
+    AsyncStorage.getItem('email', (error, result) => {
+      if (result !== null) {
+        this.state.textEmail = result
+      }
+    })
   }
 
   render() {
     return (
       <ScrollView contentContainerStyle={loginStyles.container}>
         <TextInput
+          autoCapitalize='none'
+          clearButtonMode='while-editing'
           style={loginStyles.textField}
           onChangeText={(textEmail) => this.setState({textEmail})}
           placeholder= 'email'
           value={this.state.textEmail}
         />
         <TextInput
+          autoCapitalize='none'
+          clearButtonMode='while-editing'
           style={loginStyles.textField}
           onChangeText={(textPassword) => this.setState({textPassword})}
           placeholder= 'password'
@@ -50,6 +62,30 @@ export default class Login extends Component {
   }
 
   loginButtonPress() {
+    let self = this
+
+    axios.post('https://myquotes.io/api/token/new/', {
+      email: this.state.textEmail,
+      password: this.state.textPassword
+    })
+    .then(function (response) {
+      let token = response.data.token;
+      let email = self.state.textEmail
+
+      AsyncStorage.setItem('token', token, () => {
+        // nothing to be done
+      });
+      AsyncStorage.setItem('email', email, () => {
+        // nothing to be done
+      });
+      self.goToQuotes(token)
+    })
+    .catch(function (error) {
+      Alert.alert('Unable to log in');
+    });
+  }
+
+  goToQuotes(token) {
     Navigation.startSingleScreenApp({
       screen: {
         screen: 'quotes',
@@ -60,9 +96,13 @@ export default class Login extends Component {
           screen: 'sideMenu'
         },
         disableOpenGesture: true
+      },
+      passProps: {
+        token: token
       }
     });
   }
+
 }
 
 const signupButtonPress = () => {

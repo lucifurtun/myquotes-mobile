@@ -3,9 +3,11 @@ import {
   Text,
   View,
   Button,
+  AsyncStorage,
   StyleSheet
 } from 'react-native';
 
+import {Navigation} from 'react-native-navigation';
 import Color from '../styles.js'
 
 export default class SideMenu extends Component {
@@ -21,6 +23,12 @@ export default class SideMenu extends Component {
           onPress={this.buttonPress.bind(this)}
           title="Close"
           color={Color.primary}
+        />
+
+        <Button
+          onPress={this.logout.bind(this)}
+          title="Log out"
+          color={Color.error}
         />
 
     </View>
@@ -42,6 +50,18 @@ export default class SideMenu extends Component {
       to: 'closed',
       side: 'left',
       animated: true
+    });
+  }
+
+  logout() {
+    AsyncStorage.multiRemove(['token', 'email'], (err) => {
+      // nothing to be done
+    });
+    Navigation.startSingleScreenApp({
+     screen: {
+       screen: 'login',
+       title: undefined
+     }
     });
   }
 }

@@ -2,35 +2,15 @@ import React, { Component } from 'react';
 import {
   StyleSheet,
   View,
-  Text,
-  WebView,
   ListView,
+  RefreshControl,
   Button
 } from 'react-native';
 
 import {Navigation} from 'react-native-navigation';
 import Color from '../styles';
 import axios from 'axios';
-import HTMLView from 'react-native-htmlview';
-
-class Quote extends Component {
-  constructor() {
-    super();
-  }
-
-  render() {
-    return (
-      <View style={style.cell}>
-        <Text style={style.title}>{this.props.title}</Text>
-        <Text style={style.author}>{this.props.author}</Text>
-        <HTMLView
-          value={this.props.text}
-          stylesheet={htmlStyle}
-        />
-      </View>
-    );
-  }
-}
+import Quote from '../view/quote';
 
 export default class Quotes extends Component {
 
@@ -53,7 +33,9 @@ export default class Quotes extends Component {
     statusBarTextColorScheme: 'dark',
   };
 
-  quotes = []
+  api = null;
+
+  quotes = [];
   categories = [];
   authors = [];
 
@@ -66,35 +48,23 @@ export default class Quotes extends Component {
     const self = this;
 
     this.state = {
-      dataSource: ds.cloneWithRows(self.quotes),
+      dataSource: ds,
+      refreshing: false
     };
 
     let authorization = 'JWT ' + this.props.token;
-    let api = axios.create({
+    this.api = axios.create({
       baseURL: 'https://myquotes.io/api/',
       timeout: 1000,
       headers: {'Authorization': authorization}
     });
 
-    api.interceptors.request.use(request => {
+    this.api.interceptors.request.use(request => {
       console.log('Starting Request', request)
       return request
     });
 
-    api.get('quotes/')
-      .then( function(response) {
-        var quotes = response.data.results;
-        console.log(quotes);
-        self.setState({
-          dataSource: ds.cloneWithRows(quotes),
-        });
-        self.quotes = quotes
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-
-    api.get('authors/')
+    this.api.get('authors/')
       .then( function(response) {
         self.authors = response.data
       })
@@ -102,7 +72,7 @@ export default class Quotes extends Component {
         console.log(error);
       })
 
-      api.get('categories/')
+      this.api.get('categories/')
         .then( function(response) {
           self.categories = response.data
         })
@@ -110,6 +80,26 @@ export default class Quotes extends Component {
           console.log(error);
         })
 
+  }
+
+  componentDidMount() {
+    this.refresh()
+  }
+
+  refresh() {
+    let self = this
+    this.api.get('quotes/?page=1&page_size=1000')
+      .then( function(response) {
+        var quotes = response.data.results;
+        self.setState({
+          dataSource: self.state.dataSource.cloneWithRows(quotes),
+          refreshing: false
+        });
+        self.quotes = quotes
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
   }
 
   render() {
@@ -128,6 +118,12 @@ export default class Quotes extends Component {
           />
         </View>
         <ListView
+          refreshControl={
+            <RefreshControl
+              refreshing={this.state.refreshing}
+              onRefresh={this.refresh.bind(this)}
+            />
+          }
           enableEmptySections={true}
           dataSource={this.state.dataSource}
           renderRow={this.renderRow.bind(this)}
@@ -140,8 +136,9 @@ export default class Quotes extends Component {
     let title = quote.title ? quote.title : ''
     let text = quote.text ? quote.text : ''
     let author = quote.author ? (quote.author.name ? quote.author.name : '') : ''
-
-    return (<Quote title={title} text={text} author={author} />)
+    let tags = quote.tags
+    
+    return (<Quote title={title} text={text} author={author} tags={tags}/>)
   }
 
   onNavigatorEvent(event) {
@@ -203,54 +200,24 @@ export default class Quotes extends Component {
         return selected[quote.category_id]
       }
     })
-    console.log(filteredQuotes);
+
+    if (Object.keys(selected).length === 0) {
+      newQuotes = this.quotes
+    } else {
+      newQuotes = filteredQuotes
+    }
+
+    this.setState({
+      dataSource: this.state.dataSource.cloneWithRows(newQuotes),
+    });
   }
 
 }
 
 const style = StyleSheet.create({
-  cell: {
-    paddingTop: 8,
-    paddingBottom: 8,
-    paddingLeft: 8,
-    paddingRight: 8,
-    borderBottomWidth: 1,
-    borderColor: Color.lightBackground
-  },
-  title: {
-    fontWeight: 'bold',
-    fontSize: 16
-  },
-  author: {
-    fontSize: 16,
-    color: Color.primary,
-    paddingBottom: 8
-  },
   filterCell: {
     height: 36,
     flexDirection: 'row',
     justifyContent: 'space-around'
-  }
-});
-
-const htmlStyle = StyleSheet.create({
-  p: {
-    fontSize: 16
-  },
-  strong: {
-    fontSize: 16,
-    fontWeight: 'bold'
-  },
-  em: {
-    fontSize: 16,
-    fontStyle: 'italic'
-  },
-  u: {
-    fontSize: 16,
-    textDecorationLine: 'underline'
-  },
-  s: {
-    fontSize: 16,
-    textDecorationLine: 'line-through'
   }
 });

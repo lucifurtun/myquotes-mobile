@@ -12,17 +12,30 @@ import {
 import Color from '../styles';
 
 export default class FilterQuotes extends Component {
+
   constructor(props) {
     super(props);
 
     const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 
+    const properties = JSON.parse(JSON.stringify(this.props.properties))
+
+    properties.forEach( function(property) {
+      property.isSelected = 0
+    });
+
     this.state = {
-      dataSource: ds.cloneWithRows(this.props.properties),
+      dataSource: ds,
       selected: {},
-      opacity: 1
+      properties: properties
     };
 
+  }
+
+  componentDidMount() {
+    this.setState({
+      dataSource: this.state.dataSource.cloneWithRows(this.state.properties)
+    })
   }
 
   render() {
@@ -34,20 +47,7 @@ export default class FilterQuotes extends Component {
 
         <ListView
           dataSource={this.state.dataSource}
-          renderRow={(property, sectionIndex, rowIndex) =>
-            <TouchableOpacity onPress={() => this.onRowPress(property, rowIndex)}>
-              <View style={styles.cell}>
-                <Text style={styles.property}> {property.name} </Text>
-                <Image
-                  style={styles.image}
-                  resizeMode='cover'
-                  opacity={this.state.opacity}
-                  source={require('../../img/checkmark.png')}
-                />
-              </View>
-            </TouchableOpacity>
-
-          }
+          renderRow={this.renderRow.bind(this)}
         />
 
         <TouchableOpacity onPress={() => this.onDismissPress()}>
@@ -57,16 +57,39 @@ export default class FilterQuotes extends Component {
     );
   }
 
+  renderRow (property, sectionIndex, rowIndex) {
+    return (
+      <TouchableOpacity onPress={() => this.onRowPress(property, rowIndex)}>
+        <View style={styles.cell}>
+          <Text style={styles.property}> {property.name} </Text>
+          <Image
+            style={styles.image}
+            resizeMode='cover'
+            opacity={property.isSelected}
+            source={require('../../img/checkmark.png')}
+          />
+        </View>
+      </TouchableOpacity>
+    )
+  }
+
   onRowPress(property, rowIndex) {
     let id = property.id
-
-    if (this.state.selected[id]) {
-      delete this.state.selected[id]
-      this.setState({opacity: 0})
+    let selected = this.state.selected
+    if (selected[id]) {
+      delete selected[id]
+      property.isSelected = 0
     } else {
-      this.state.selected[id] = true
-      this.setState({opacity: 1})
+      selected[id] = true
+      property.isSelected = 1
     }
+
+    var newProperties = this.state.properties;
+    newProperties[rowIndex] = property;
+
+    this.setState({
+      properties: newProperties
+    })
 
   }
 
@@ -78,8 +101,8 @@ export default class FilterQuotes extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    width: Dimensions.get('window').width * 0.7,
-    height: Dimensions.get('window').height * 0.5,
+    width: 240,
+    height: 260,
     backgroundColor: 'white',
     borderRadius: 10
   },

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import {
   StyleSheet,
   View,
-  ListView,
+  SectionList,
   RefreshControl,
   TouchableOpacity,
   Text,
@@ -46,13 +46,13 @@ export default class Quotes extends Component {
     super(props);
 
     this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
-    const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 
     const self = this;
 
     this.state = {
-      dataSource: ds,
-      refreshing: false
+      quotes: [],
+      refreshing: false,
+      currentPage: 1
     };
 
     let authorization = 'JWT ' + this.props.token;
@@ -94,21 +94,20 @@ export default class Quotes extends Component {
   }
 
   componentDidMount() {
-    this.refresh()
+    this.fetchNextPage()
   }
 
-  refresh() {
+  fetchNextPage() {
     let self = this
-    this.api.get('quotes/?page=1&page_size=1000')
+    this.api.get('quotes/?page=' + this.state.currentPage)
       .then( function(response) {
         var quotes = response.data.results;
-        console.log('quotes');
-        console.log(quotes);
-        self.setState({
-          dataSource: self.state.dataSource.cloneWithRows(quotes),
-          refreshing: false
-        });
         self.quotes = quotes
+        self.setState({
+          quotes: quotes,
+          refreshing: false,
+          currentPage: self.state.currentPage + 1
+        });
       })
       .catch(function (error) {
         console.log(error);
@@ -117,40 +116,46 @@ export default class Quotes extends Component {
 
   render() {
     return (
-      <View style={{flex: 1}}>
-        <View style={style.filterCell}>
-          <TouchableOpacity onPress={this.categoriesButtonPress.bind(this)}>
-            <View style={style.buttonContainer}>
-              <Text style={style.buttonText}>Categories</Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={this.authorsButtonPress.bind(this)}>
-            <View style={style.buttonContainer}>
-              <Text style={style.buttonText}>Authors</Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={this.tagsButtonPress.bind(this)}>
-            <View style={style.buttonContainer}>
-              <Text style={style.buttonText}>Tags</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-        <ListView
-          style={{
-            backgroundColor: Color.lightBackground
-          }}
-          refreshControl={
-            <RefreshControl
-              refreshing={this.state.refreshing}
-              onRefresh={this.refresh.bind(this)}
-            />
+      <View style={style.container}>
+        <SectionList
+          sections={this.getQuotes()}
+          renderItem={({item}) =>
+            this.renderRow(item)
           }
-          enableEmptySections={true}
-          dataSource={this.state.dataSource}
-          renderRow={this.renderRow.bind(this)}
+          keyExtractor={(item) => {return item.id}}
+          renderSectionHeader={() =>
+            <View style={style.filterCell}>
+              <TouchableOpacity onPress={this.categoriesButtonPress.bind(this)}>
+                <View style={style.buttonContainer}>
+                  <Text style={style.buttonText}>Categories</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={this.authorsButtonPress.bind(this)}>
+                <View style={style.buttonContainer}>
+                  <Text style={style.buttonText}>Authors</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={this.tagsButtonPress.bind(this)}>
+                <View style={style.buttonContainer}>
+                  <Text style={style.buttonText}>Tags</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          }
         />
       </View>
     );
+  }
+
+  getQuotes() {
+    let sections = [
+      {data: this.state.quotes, key: "myQuotes"}
+    ];
+    return sections
+  }
+
+  _keyExtractor(item, index) {
+    return item.id
   }
 
   renderRow(quote) {
@@ -264,13 +269,17 @@ export default class Quotes extends Component {
     }
 
     this.setState({
-      dataSource: this.state.dataSource.cloneWithRows(newQuotes),
+      quotes: newQuotes,
     });
   }
 
 }
 
 const style = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Color.lightBackground
+  },
   filterCell: {
     height: 36,
     flexDirection: 'row',
@@ -281,8 +290,7 @@ const style = StyleSheet.create({
   buttonContainer: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'green'
+    justifyContent: 'center'
   },
   buttonText: {
     fontSize: 16,

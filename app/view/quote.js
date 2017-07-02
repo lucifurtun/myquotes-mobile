@@ -18,21 +18,21 @@ export default class Quote extends Component {
   render() {
     return (
       <View style={style.container}>
-      <View style={style.cell}>
-        <Text style={style.title}>{this.props.title}</Text>
-        <View style={style.secondRow}>
-          <View style={style.authorContainer}>
-          <Text style={style.authorText}>{this.props.author}</Text>
+        <View style={style.cell}>
+          <Text style={style.title}>{this.props.title}</Text>
+          <View style={style.secondRow}>
+            <View style={style.authorContainer}>
+            <Text style={style.authorText}>{this.props.author}</Text>
+            </View>
+            <Text style={style.date}>{this.props.date}</Text>
           </View>
-          <Text style={style.date}>{this.props.date}</Text>
+          <View style={style.text}>
+            <HTMLView
+              value={this.props.text}
+              stylesheet={htmlStyle}
+            />
+          </View>
         </View>
-        <View style={style.text}>
-          <HTMLView
-            value={this.props.text}
-            stylesheet={htmlStyle}
-          />
-        </View>
-      </View>
       </View>
     );
   }
@@ -43,9 +43,10 @@ const style = StyleSheet.create({
     backgroundColor: '#00000000'
   },
   cell: {
-    marginBottom: 12,
-    marginLeft: 1,
-    marginRight: 1,
+    marginTop: 8,
+    marginBottom: 8,
+    marginLeft: 4,
+    marginRight: 4,
     backgroundColor: 'white',
     borderWidth: 1,
     borderColor: 'white',
@@ -59,9 +60,10 @@ const style = StyleSheet.create({
     fontSize: 16
   },
   text: {
+    paddingTop: 12,
     marginRight: 4,
     marginLeft: 8,
-    paddingBottom: 4
+    paddingBottom: 8
   },
   secondRow: {
     flexDirection: 'row',

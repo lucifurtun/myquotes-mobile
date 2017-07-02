@@ -6,14 +6,17 @@ import {
   RefreshControl,
   TouchableOpacity,
   Text,
-  Button
+  Dimensions
 } from 'react-native';
 
 import {Navigation} from 'react-native-navigation';
+import {BlurView} from 'react-native-blur';
 import Color from '../styles';
 import Constants from '../constants';
 import axios from 'axios';
 import Quote from '../view/quote';
+
+const filterButtonWidth = Dimensions.get("window").width * 0.3;
 
 export default class Quotes extends Component {
 
@@ -52,7 +55,7 @@ export default class Quotes extends Component {
     this.state = {
       quotes: [],
       refreshing: false,
-      nextPage: 1,
+      nextPage: 1
     };
 
     let authorization = 'JWT ' + this.props.token;
@@ -125,28 +128,37 @@ export default class Quotes extends Component {
           }
           keyExtractor={(item) => {return item.id}}
           onEndReached={() => this.fetchNextPage()}
-          renderSectionHeader={() =>
-            <View style={style.filterCell}>
-              <TouchableOpacity onPress={this.categoriesButtonPress.bind(this)}>
-                <View style={style.buttonContainer}>
-                  <Text style={style.buttonText}>Categories</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={this.authorsButtonPress.bind(this)}>
-                <View style={style.buttonContainer}>
-                  <Text style={style.buttonText}>Authors</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={this.tagsButtonPress.bind(this)}>
-                <View style={style.buttonContainer}>
-                  <Text style={style.buttonText}>Tags</Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-          }
+          renderSectionHeader={() => this.renderHeader() }
         />
       </View>
     );
+  }
+
+  renderHeader() {
+    return (
+      <View style={style.filterCell}>
+        <BlurView
+          style={style.blurView}
+          blurType="xlight"
+          blurAmount={10}
+        />
+        <TouchableOpacity onPress={this.categoriesButtonPress.bind(this)}>
+          <View style={style.buttonContainer}>
+            <Text style={style.buttonText}>Categories</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={this.authorsButtonPress.bind(this)}>
+          <View style={style.buttonContainer}>
+            <Text style={style.buttonText}>Authors</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={this.tagsButtonPress.bind(this)}>
+          <View style={style.buttonContainer}>
+            <Text style={style.buttonText}>Tags</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+    )
   }
 
   getQuotes() {
@@ -247,24 +259,40 @@ export default class Quotes extends Component {
 }
 
 const style = StyleSheet.create({
+  blurContainer: {
+    flex: 1,
+    backgroundColor: 'transparent',
+    justifyContent: 'center',
+    alignItems: 'stretch',
+    paddingHorizontal: 20,
+  },
+  blurView: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+  },
+  filterCell: {
+    height: 40,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+  },
   container: {
     flex: 1,
     backgroundColor: Color.lightBackground
   },
-  filterCell: {
-    height: 36,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    backgroundColor: Color.primary
-  },
   buttonContainer: {
     flex: 1,
+    width: filterButtonWidth,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    backgroundColor: '#00000000'
   },
   buttonText: {
     fontSize: 16,
-    color: 'white'
+    fontWeight: '700',
+    color: Color.primary
   }
 });

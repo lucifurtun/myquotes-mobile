@@ -117,6 +117,7 @@ const loginStyles = StyleSheet.create({
   },
   textField: {
     height: 40,
+    width: 300,
     paddingLeft: 24,
     paddingRight: 24,
   }

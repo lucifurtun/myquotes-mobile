@@ -259,13 +259,6 @@ export default class Quotes extends Component {
 }
 
 const style = StyleSheet.create({
-  blurContainer: {
-    flex: 1,
-    backgroundColor: 'transparent',
-    justifyContent: 'center',
-    alignItems: 'stretch',
-    paddingHorizontal: 20,
-  },
   blurView: {
     position: 'absolute',
     left: 0,

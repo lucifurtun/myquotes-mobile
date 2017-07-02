@@ -4,7 +4,7 @@ import {
   View,
   Text,
   Image,
-  ListView,
+  FlatList,
   TouchableOpacity,
   Dimensions
 } from 'react-native';
@@ -16,8 +16,6 @@ export default class FilterQuotes extends Component {
   constructor(props) {
     super(props);
 
-    const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-
     const properties = JSON.parse(JSON.stringify(this.props.properties))
 
     properties.forEach( function(property) {
@@ -25,17 +23,10 @@ export default class FilterQuotes extends Component {
     });
 
     this.state = {
-      dataSource: ds,
       selected: {},
       properties: properties
     };
 
-  }
-
-  componentDidMount() {
-    this.setState({
-      dataSource: this.state.dataSource.cloneWithRows(this.state.properties)
-    })
   }
 
   render() {
@@ -45,9 +36,11 @@ export default class FilterQuotes extends Component {
           Filter by {this.props.filter}
         </Text>
 
-        <ListView
-          dataSource={this.state.dataSource}
-          renderRow={this.renderRow.bind(this)}
+        <FlatList
+          data={this.getProperties()}
+          extraData={this.state}
+          renderItem={({item, index}) => this.renderRow(item, index)}
+          keyExtractor={(item) => {return item.id}}
         />
 
         <TouchableOpacity onPress={() => this.onDismissPress()}>
@@ -57,9 +50,9 @@ export default class FilterQuotes extends Component {
     );
   }
 
-  renderRow (property, sectionIndex, rowIndex) {
+  renderRow (property, index) {
     return (
-      <TouchableOpacity onPress={() => this.onRowPress(property, rowIndex)}>
+      <TouchableOpacity onPress={() => this.onRowPress(property, index)}>
         <View style={styles.cell}>
           <Text style={styles.property}> {property.name} </Text>
           <Image
@@ -73,7 +66,7 @@ export default class FilterQuotes extends Component {
     )
   }
 
-  onRowPress(property, rowIndex) {
+  onRowPress(property, index) {
     let id = property.id
     let selected = this.state.selected
     if (selected[id]) {
@@ -85,12 +78,16 @@ export default class FilterQuotes extends Component {
     }
 
     var newProperties = this.state.properties;
-    newProperties[rowIndex] = property;
+    newProperties[index] = property;
 
     this.setState({
       properties: newProperties
     })
 
+  }
+
+  getProperties() {
+    return this.state.properties
   }
 
   onDismissPress() {

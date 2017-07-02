@@ -11,6 +11,7 @@ import {
 
 import {Navigation} from 'react-native-navigation';
 import Color from '../styles';
+import Constants from '../constants';
 import axios from 'axios';
 import Quote from '../view/quote';
 
@@ -37,7 +38,6 @@ export default class Quotes extends Component {
 
   api = null;
 
-  quotes = [];
   categories = [];
   authors = [];
   tags = [];
@@ -52,7 +52,7 @@ export default class Quotes extends Component {
     this.state = {
       quotes: [],
       refreshing: false,
-      currentPage: 1
+      nextPage: 1,
     };
 
     let authorization = 'JWT ' + this.props.token;
@@ -63,7 +63,7 @@ export default class Quotes extends Component {
     });
 
     this.api.interceptors.request.use(request => {
-      console.log('Starting Request', request)
+      // console.log('Starting Request', request)
       return request
     });
 
@@ -99,19 +99,20 @@ export default class Quotes extends Component {
 
   fetchNextPage() {
     let self = this
-    this.api.get('quotes/?page=' + this.state.currentPage)
-      .then( function(response) {
-        var quotes = response.data.results;
-        self.quotes = quotes
-        self.setState({
-          quotes: quotes,
-          refreshing: false,
-          currentPage: self.state.currentPage + 1
+    if (this.state.nextPage) {
+      this.api.get('quotes/?page=' + this.state.nextPage + '&page_size=' + Constants.quotesPerPage)
+        .then( function(response) {
+          var quotes = response.data.results;
+          self.setState({
+            quotes: [...self.state.quotes, ...quotes],
+            refreshing: false,
+            nextPage: response.data.pages.next
+          });
+        })
+        .catch(function (error) {
+          console.log(error);
         });
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+    }
   }
 
   render() {
@@ -123,6 +124,7 @@ export default class Quotes extends Component {
             this.renderRow(item)
           }
           keyExtractor={(item) => {return item.id}}
+          onEndReached={() => this.fetchNextPage()}
           renderSectionHeader={() =>
             <View style={style.filterCell}>
               <TouchableOpacity onPress={this.categoriesButtonPress.bind(this)}>
@@ -240,37 +242,6 @@ export default class Quotes extends Component {
     let selectedArray = Object.keys(selected)
     let filteredQuotes = []
 
-    if (self.filterBy === 'Authors') {
-      filteredQuotes = this.quotes.filter( function(quote) {
-        return selected[quote.author_id]
-      })
-    } else if (self.filterBy === 'Categories') {
-      filteredQuotes = this.quotes.filter( function(quote) {
-        return selected[quote.category_id]
-      })
-    } else if (self.filterBy === 'Tags') {
-      filteredQuotes = this.quotes.filter( function(quote) {
-        let tagsArray = []
-        quote.tags.forEach( function(tag) {
-          tagsArray.push("" + tag.id)
-        })
-        let intersection = tagsArray.filter( function(element) {
-          return selectedArray.indexOf(element) > -1
-        })
-
-        return intersection.length === selectedArray.length
-      })
-    }
-
-    if (selectedArray.length === 0) {
-      newQuotes = this.quotes
-    } else {
-      newQuotes = filteredQuotes
-    }
-
-    this.setState({
-      quotes: newQuotes,
-    });
   }
 
 }

@@ -16,14 +16,10 @@ export default class FilterQuotes extends Component {
   constructor(props) {
     super(props);
 
-    const properties = JSON.parse(JSON.stringify(this.props.properties))
-
-    properties.forEach( function(property) {
-      property.isSelected = 0
-    });
+    let properties = JSON.parse(JSON.stringify(this.props.properties))
 
     this.state = {
-      selected: {},
+      selected: this.isSelected(properties),
       properties: properties
     };
 
@@ -91,40 +87,19 @@ export default class FilterQuotes extends Component {
   }
 
   onDismissPress() {
-    this.props.callback(this.filterParams())
+    this.props.callback(this.state.properties)
     this.props.navigator.dismissLightBox();
   }
 
-  filterParams() {
-    let propertyType = null
-
-    switch (this.props.filter) {
-      case 'Categories':
-        propertyType = 'category'
-        break;
-      case 'Authors':
-        propertyType = 'author'
-        break;
-      case 'Tags':
-        propertyType = 'tags'
-        break;
-      default:
-        break;
-    }
-
-    let returnValue = null
-
-    if (propertyType) {
-      let selectedArray = Object.keys(this.state.selected)
-      returnValue = ''
-      for (index in selectedArray) {
-        returnValue += '&' + propertyType + '=' + selectedArray[index]
+  isSelected(properties) {
+    let selected = {}
+    properties.forEach( function(property) {
+      if (property.isSelected) {
+        selected[property.id] = true
       }
+    });
 
-    }
-
-    return returnValue
-
+    return selected
   }
 
 }

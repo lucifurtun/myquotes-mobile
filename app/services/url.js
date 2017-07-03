@@ -22,4 +22,12 @@ export default class URL {
     return url
   }
 
+  updateFilter(newFilter) {
+    if (this.filter) {
+      this.filter += newFilter
+    } else {
+      this.filter = newFilter
+    }
+  }
+
 }

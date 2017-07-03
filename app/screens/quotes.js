@@ -45,6 +45,7 @@ export default class Quotes extends Component {
   categories = [];
   authors = [];
   tags = [];
+  activeFilters = [];
 
   constructor(props) {
     super(props);
@@ -74,7 +75,7 @@ export default class Quotes extends Component {
 
     this.api.get(URL.authorsUrl)
       .then( function(response) {
-        self.authors = response.data
+        self.authors = self.addSelectedKey(response.data)
       })
       .catch( function(error) {
         console.log(error);
@@ -82,7 +83,7 @@ export default class Quotes extends Component {
 
     this.api.get(URL.categoriesUrl)
       .then( function(response) {
-        self.categories = response.data
+        self.categories = self.addSelectedKey(response.data)
       })
       .catch( function(error) {
         console.log(error);
@@ -90,7 +91,7 @@ export default class Quotes extends Component {
 
     this.api.get(URL.tagsUrl)
       .then( function(response) {
-        self.tags = response.data
+        self.tags = self.addSelectedKey(response.data)
       })
       .catch( function(error) {
         console.log(error);
@@ -99,13 +100,15 @@ export default class Quotes extends Component {
   }
 
   componentDidMount() {
-    this.fetchNextPage()
+    this.fetchNextPage(null)
   }
 
-  fetchNextPage() {
+  fetchNextPage(nextPage) {
     let self = this
-    if (this.state.nextPage) {
-      this.api.get(this.state.url.quotes(this.state.nextPage))
+    let page = nextPage ? nextPage : this.state.nextPage
+
+    if (page) {
+      this.api.get(this.state.url.quotes(page))
         .then( function(response) {
           var quotes = response.data.results;
           self.setState({
@@ -128,7 +131,7 @@ export default class Quotes extends Component {
             this.renderRow(item)
           }
           keyExtractor={(item) => {return item.id}}
-          onEndReached={() => this.fetchNextPage()}
+          onEndReached={() => this.fetchNextPage(null)}
           renderSectionHeader={() => this.renderHeader() }
         />
       </View>
@@ -145,17 +148,17 @@ export default class Quotes extends Component {
         />
         <TouchableOpacity onPress={this.categoriesButtonPress.bind(this)}>
           <View style={style.buttonContainer}>
-            <Text style={style.buttonText}>Categories</Text>
+            <Text style={[this.isFilterBy('Categories')]}>Categories</Text>
           </View>
         </TouchableOpacity>
         <TouchableOpacity onPress={this.authorsButtonPress.bind(this)}>
           <View style={style.buttonContainer}>
-            <Text style={style.buttonText}>Authors</Text>
+            <Text style={[this.isFilterBy('Authors')]}>Authors</Text>
           </View>
         </TouchableOpacity>
         <TouchableOpacity onPress={this.tagsButtonPress.bind(this)}>
           <View style={style.buttonContainer}>
-            <Text style={style.buttonText}>Tags</Text>
+            <Text style={[this.isFilterBy('Tags')]}>Tags</Text>
           </View>
         </TouchableOpacity>
       </View>
@@ -250,16 +253,98 @@ export default class Quotes extends Component {
     });
   }
 
-  modalDidClose(urlWithIds) {
-    this.state.url.filter = urlWithIds
+  modalDidClose(properties) {
+    let filterUrl = null
+    this.state.url.filter = null
 
     this.setState({
-      quotes: [],
-      nextPage: 1
+      quotes: []
     })
 
-    this.fetchNextPage()    
+    console.log(this.state.nextPage);
+    switch (this.filterBy) {
+      case 'Categories':
+        this.categories = properties
+        break;
+      case 'Authors':
+        this.authors = properties
+        break;
+      case 'Tags':
+        this.tags = properties
+        break;
+      default:
+        break;
+    }
 
+    filterUrl = this.getFilterUrl(this.categories, 'category')
+    if (filterUrl) {
+      this.state.url.updateFilter(filterUrl)
+      if (this.activeFilters.indexOf('Categories') != -1) {
+        this.activeFilters.push('Categories')
+      }
+    } else {
+      var i = this.activeFilters.indexOf('Categories')
+      if (i != -1) {
+        array.splice(i, 1);
+      }
+    }
+    filterUrl = this.getFilterUrl(this.authors, 'author')
+    if (filterUrl) {
+      this.state.url.updateFilter(filterUrl)
+      if (this.activeFilters.indexOf('Authors') != -1) {
+        this.activeFilters.push('Authors')
+      }
+    } else {
+      var i = this.activeFilters.indexOf('Authors')
+      if (i != -1) {
+        array.splice(i, 1);
+      }
+    }
+    filterUrl = this.getFilterUrl(this.tags, 'tags')
+    if (filterUrl) {
+      this.state.url.updateFilter(filterUrl)
+      if (this.activeFilters.indexOf('Tags') != -1) {
+        this.activeFilters.push('Tags')
+      }
+    } else {
+      var i = this.activeFilters.indexOf('Tags')
+      if (i != -1) {
+        array.splice(i, 1);
+      }
+    }
+
+    this.fetchNextPage(1)
+
+  }
+
+  addSelectedKey(param) {
+    let properties = JSON.parse(JSON.stringify(param))
+
+    properties.forEach( function(property) {
+      property.isSelected = 0
+    });
+
+    return properties
+  }
+
+  getFilterUrl(properties, propertyType) {
+    let returnValue = ''
+
+    properties.forEach( function(property) {
+      if (property.isSelected) {
+        returnValue += '&' + propertyType + '=' + property.id
+      }
+    });
+
+    return returnValue !== '' ? returnValue : null
+  }
+
+  isFilterBy(filter) {
+    if (this.filterBy === filter) {
+      return style.buttonTextFilter
+    } else {
+      return style.buttonText
+    }
   }
 
 }
@@ -290,6 +375,11 @@ const style = StyleSheet.create({
     backgroundColor: '#00000000'
   },
   buttonText: {
+    fontSize: 16,
+    fontWeight: '400',
+    color: Color.primary
+  },
+  buttonTextFilter: {
     fontSize: 16,
     fontWeight: '700',
     color: Color.primary

@@ -15,6 +15,7 @@ import Color from '../styles';
 import Constants from '../constants';
 import axios from 'axios';
 import Quote from '../view/quote';
+import URL from '../services/url';
 
 const filterButtonWidth = Dimensions.get("window").width * 0.3;
 
@@ -52,15 +53,16 @@ export default class Quotes extends Component {
 
     const self = this;
 
+    let url = new URL()
+
     this.state = {
       quotes: [],
-      refreshing: false,
+      url: url,
       nextPage: 1
     };
 
     let authorization = 'JWT ' + this.props.token;
     this.api = axios.create({
-      baseURL: 'https://myquotes.io/api/',
       timeout: 1000,
       headers: {'Authorization': authorization}
     });
@@ -70,7 +72,7 @@ export default class Quotes extends Component {
       return request
     });
 
-    this.api.get('authors/')
+    this.api.get(URL.authorsUrl)
       .then( function(response) {
         self.authors = response.data
       })
@@ -78,7 +80,7 @@ export default class Quotes extends Component {
         console.log(error);
       })
 
-    this.api.get('categories/')
+    this.api.get(URL.categoriesUrl)
       .then( function(response) {
         self.categories = response.data
       })
@@ -86,7 +88,7 @@ export default class Quotes extends Component {
         console.log(error);
       })
 
-    this.api.get('tags/')
+    this.api.get(URL.tagsUrl)
       .then( function(response) {
         self.tags = response.data
       })
@@ -103,12 +105,11 @@ export default class Quotes extends Component {
   fetchNextPage() {
     let self = this
     if (this.state.nextPage) {
-      this.api.get('quotes/?page=' + this.state.nextPage + '&page_size=' + Constants.quotesPerPage)
+      this.api.get(this.state.url.quotes(this.state.nextPage))
         .then( function(response) {
           var quotes = response.data.results;
           self.setState({
             quotes: [...self.state.quotes, ...quotes],
-            refreshing: false,
             nextPage: response.data.pages.next
           });
         })
@@ -249,10 +250,15 @@ export default class Quotes extends Component {
     });
   }
 
-  modalDidClose(selected) {
-    let self = this
-    let selectedArray = Object.keys(selected)
-    let filteredQuotes = []
+  modalDidClose(urlWithIds) {
+    this.state.url.filter = urlWithIds
+
+    this.setState({
+      quotes: [],
+      nextPage: 1
+    })
+
+    this.fetchNextPage()    
 
   }
 

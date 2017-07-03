@@ -91,9 +91,42 @@ export default class FilterQuotes extends Component {
   }
 
   onDismissPress() {
-    this.props.callback(this.state.selected)
+    this.props.callback(this.filterParams())
     this.props.navigator.dismissLightBox();
   }
+
+  filterParams() {
+    let propertyType = null
+
+    switch (this.props.filter) {
+      case 'Categories':
+        propertyType = 'category'
+        break;
+      case 'Authors':
+        propertyType = 'author'
+        break;
+      case 'Tags':
+        propertyType = 'tags'
+        break;
+      default:
+        break;
+    }
+
+    let returnValue = null
+
+    if (propertyType) {
+      let selectedArray = Object.keys(this.state.selected)
+      returnValue = ''
+      for (index in selectedArray) {
+        returnValue += '&' + propertyType + '=' + selectedArray[index]
+      }
+
+    }
+
+    return returnValue
+
+  }
+
 }
 
 const styles = StyleSheet.create({

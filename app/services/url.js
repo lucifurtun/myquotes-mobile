@@ -30,4 +30,21 @@ export default class URL {
     }
   }
 
+  updateFilterUrl(properties, propertyType) {
+    let filterUrl = ''
+
+    properties.forEach( function(property) {
+      if (property.isSelected) {
+        filterUrl += '&' + propertyType + '=' + property.id
+      }
+    });
+
+    if (filterUrl !== '') {
+      this.updateFilter(filterUrl)
+      return true
+    }
+
+    return false
+  }
+
 }

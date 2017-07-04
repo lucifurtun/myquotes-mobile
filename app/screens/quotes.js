@@ -146,17 +146,17 @@ export default class Quotes extends Component {
           blurType="xlight"
           blurAmount={10}
         />
-        <TouchableOpacity onPress={this.categoriesButtonPress.bind(this)}>
+        <TouchableOpacity onPress={() => this.filterButtonPress('Categories') }>
           <View style={style.buttonContainer}>
             <Text style={[this.isFilterBy('Categories')]}>Categories</Text>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity onPress={this.authorsButtonPress.bind(this)}>
+        <TouchableOpacity onPress={() => this.filterButtonPress('Authors') }>
           <View style={style.buttonContainer}>
             <Text style={[this.isFilterBy('Authors')]}>Authors</Text>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity onPress={this.tagsButtonPress.bind(this)}>
+        <TouchableOpacity onPress={() => this.filterButtonPress('Tags') }>
           <View style={style.buttonContainer}>
             <Text style={[this.isFilterBy('Tags')]}>Tags</Text>
           </View>
@@ -205,8 +205,23 @@ export default class Quotes extends Component {
     }
   }
 
-  categoriesButtonPress() {
-    this.filterBy = 'Categories'
+  filterButtonPress(buttonName) {
+    this.filterBy = buttonName
+    let properties = []
+
+    switch (this.filterBy) {
+      case 'Categories':
+        properties = this.categories
+        break;
+      case 'Authors':
+        properties = this.authors
+        break;
+      case 'Tags':
+        properties = this.tags
+        break;
+      default:
+        break;
+    }
 
     this.props.navigator.showLightBox({
       screen: "filterQuotes",
@@ -215,53 +230,20 @@ export default class Quotes extends Component {
       },
       passProps: {
         filter: this.filterBy,
-        properties: this.categories,
-        callback: (param) => this.modalDidClose(param)
-      },
-    });
-  }
-
-  authorsButtonPress() {
-    this.filterBy = 'Authors'
-
-    this.props.navigator.showLightBox({
-      screen: "filterQuotes",
-      style: {
-        backgroundBlur: "dark"
-      },
-      passProps: {
-        filter: this.filterBy,
-        properties: this.authors,
-        callback: (param) => this.modalDidClose(param)
-      },
-    });
-  }
-
-  tagsButtonPress() {
-    this.filterBy = 'Tags'
-
-    this.props.navigator.showLightBox({
-      screen: "filterQuotes",
-      style: {
-        backgroundBlur: "dark"
-      },
-      passProps: {
-        filter: this.filterBy,
-        properties: this.tags,
+        properties: properties,
         callback: (param) => this.modalDidClose(param)
       },
     });
   }
 
   modalDidClose(properties) {
-    let filterUrl = null
+    this.activeFilters = null
     this.state.url.filter = null
 
     this.setState({
       quotes: []
     })
 
-    console.log(this.state.nextPage);
     switch (this.filterBy) {
       case 'Categories':
         this.categories = properties
@@ -276,41 +258,14 @@ export default class Quotes extends Component {
         break;
     }
 
-    filterUrl = this.getFilterUrl(this.categories, 'category')
-    if (filterUrl) {
-      this.state.url.updateFilter(filterUrl)
-      if (this.activeFilters.indexOf('Categories') != -1) {
-        this.activeFilters.push('Categories')
-      }
-    } else {
-      var i = this.activeFilters.indexOf('Categories')
-      if (i != -1) {
-        array.splice(i, 1);
-      }
+    if (this.state.url.updateFilterUrl(this.categories, 'category')) {
+      this.activeFilters.push('Categories')
     }
-    filterUrl = this.getFilterUrl(this.authors, 'author')
-    if (filterUrl) {
-      this.state.url.updateFilter(filterUrl)
-      if (this.activeFilters.indexOf('Authors') != -1) {
-        this.activeFilters.push('Authors')
-      }
-    } else {
-      var i = this.activeFilters.indexOf('Authors')
-      if (i != -1) {
-        array.splice(i, 1);
-      }
+    if (this.state.url.updateFilterUrl(this.categories, 'author')) {
+      this.activeFilters.push('Authors')
     }
-    filterUrl = this.getFilterUrl(this.tags, 'tags')
-    if (filterUrl) {
-      this.state.url.updateFilter(filterUrl)
-      if (this.activeFilters.indexOf('Tags') != -1) {
-        this.activeFilters.push('Tags')
-      }
-    } else {
-      var i = this.activeFilters.indexOf('Tags')
-      if (i != -1) {
-        array.splice(i, 1);
-      }
+    if (this.state.url.updateFilterUrl(this.categories, 'tags')) {
+      this.activeFilters.push('Tags')
     }
 
     this.fetchNextPage(1)
@@ -327,20 +282,8 @@ export default class Quotes extends Component {
     return properties
   }
 
-  getFilterUrl(properties, propertyType) {
-    let returnValue = ''
-
-    properties.forEach( function(property) {
-      if (property.isSelected) {
-        returnValue += '&' + propertyType + '=' + property.id
-      }
-    });
-
-    return returnValue !== '' ? returnValue : null
-  }
-
   isFilterBy(filter) {
-    if (this.filterBy === filter) {
+    if (this.activeFilters.includes(filter)) {
       return style.buttonTextFilter
     } else {
       return style.buttonText

@@ -237,7 +237,7 @@ export default class Quotes extends Component {
   }
 
   modalDidClose(properties) {
-    this.activeFilters = null
+    this.activeFilters = []
     this.state.url.filter = null
 
     this.setState({
@@ -261,10 +261,10 @@ export default class Quotes extends Component {
     if (this.state.url.updateFilterUrl(this.categories, 'category')) {
       this.activeFilters.push('Categories')
     }
-    if (this.state.url.updateFilterUrl(this.categories, 'author')) {
+    if (this.state.url.updateFilterUrl(this.authors, 'author')) {
       this.activeFilters.push('Authors')
     }
-    if (this.state.url.updateFilterUrl(this.categories, 'tags')) {
+    if (this.state.url.updateFilterUrl(this.tags, 'tags')) {
       this.activeFilters.push('Tags')
     }
 
@@ -319,12 +319,12 @@ const style = StyleSheet.create({
   },
   buttonText: {
     fontSize: 16,
-    fontWeight: '400',
-    color: Color.primary
+    fontWeight: '200',
+    color: Color.darkText
   },
   buttonTextFilter: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '500',
     color: Color.primary
   }
 });

@@ -5,7 +5,8 @@ import {
   TextInput,
   Button,
   AsyncStorage,
-  ScrollView
+  ScrollView,
+  View
 } from 'react-native';
 
 import {Navigation} from 'react-native-navigation';
@@ -13,6 +14,11 @@ import Color from '../styles';
 import axios from 'axios';
 
 export default class Login extends Component {
+
+  static navigatorStyle = {
+    navBarHidden: true
+  };
+
   constructor(props) {
     super(props);
     this.state = {
@@ -30,29 +36,37 @@ export default class Login extends Component {
   render() {
     return (
       <ScrollView contentContainerStyle={loginStyles.container}>
+        <View>
         <TextInput
           autoCapitalize='none'
           clearButtonMode='while-editing'
+          selectionColor={Color.primary}
           style={loginStyles.textField}
           onChangeText={(textEmail) => this.setState({textEmail})}
           placeholder= 'email'
           value={this.state.textEmail}
         />
+        </View>
+        <View>
         <TextInput
           autoCapitalize='none'
           clearButtonMode='while-editing'
+          selectionColor={Color.primary}
           style={loginStyles.textField}
           onChangeText={(textPassword) => this.setState({textPassword})}
           placeholder= 'password'
           value={this.state.textPassword}
           secureTextEntry={true}
         />
+        </View>
         <Button
+          style={loginStyles.button}
           onPress={this.loginButtonPress.bind(this)}
           title="Log In"
           color={Color.primary}
         />
         <Button
+          style={loginStyles.button}
           onPress={signupButtonPress}
           title="Sign Up"
           color={Color.primary}
@@ -112,13 +126,15 @@ const signupButtonPress = () => {
 const loginStyles = StyleSheet.create({
   container: {
     flex: 1,
+    flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center'
   },
   textField: {
     height: 40,
-    width: 300,
-    paddingLeft: 24,
-    paddingRight: 24,
+    width: 300
+  },
+  button: {
+    padding: 16
   }
 });

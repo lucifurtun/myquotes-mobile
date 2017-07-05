@@ -1,5 +1,6 @@
 import {Navigation} from 'react-native-navigation';
 
+import Loading from './loading';
 import Login from './login';
 import Quotes from './quotes';
 import SideMenu from './sideMenu';
@@ -14,6 +15,7 @@ import FilterQuotes from './filterQuotes';
 
 // register all screens of the app (including internal ones)
 export function registerScreens() {
+  Navigation.registerComponent('loading', () => Loading);
   Navigation.registerComponent('login', () => Login);
   Navigation.registerComponent('quotes', () => Quotes);
   Navigation.registerComponent('sideMenu', () => SideMenu);

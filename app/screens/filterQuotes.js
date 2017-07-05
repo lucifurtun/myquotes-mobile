@@ -4,7 +4,7 @@ import {
   View,
   Text,
   Image,
-  ListView,
+  FlatList,
   TouchableOpacity,
   Dimensions
 } from 'react-native';
@@ -12,23 +12,17 @@ import {
 import Color from '../styles';
 
 export default class FilterQuotes extends Component {
+
   constructor(props) {
     super(props);
 
-    const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+    let properties = JSON.parse(JSON.stringify(this.props.properties))
 
     this.state = {
-      dataSource: ds.cloneWithRows(this.props.properties)
+      selected: this.isSelected(properties),
+      properties: properties
     };
 
-    var selected = {}
-
-    let properties = this.props.properties
-    properties.forEach(function (property) {
-      selected[property.name] = false
-    })
-
-    this.state.selected = selected
   }
 
   render() {
@@ -38,22 +32,11 @@ export default class FilterQuotes extends Component {
           Filter by {this.props.filter}
         </Text>
 
-        <ListView
-          dataSource={this.state.dataSource}
-          renderRow={(property) =>
-            <TouchableOpacity onPress={() => this.onRowPress(property)}>
-              <View style={styles.cell}>
-                <Text style={styles.property}> {property.name} </Text>
-                <Image
-                  style={styles.image}
-                  resizeMode='cover'
-                  opacity={1}
-                  source={require('../../img/checkmark.png')}
-                />
-              </View>
-            </TouchableOpacity>
-
-          }
+        <FlatList
+          data={this.getProperties()}
+          extraData={this.state}
+          renderItem={({item, index}) => this.renderRow(item, index)}
+          keyExtractor={(item) => {return item.id}}
         />
 
         <TouchableOpacity onPress={() => this.onDismissPress()}>
@@ -63,22 +46,68 @@ export default class FilterQuotes extends Component {
     );
   }
 
-  onRowPress(property) {
-    let name = property.name
+  renderRow (property, index) {
+    return (
+      <TouchableOpacity onPress={() => this.onRowPress(property, index)}>
+        <View style={styles.cell}>
+          <Text style={styles.property}> {property.name} </Text>
+          <Image
+            style={styles.image}
+            resizeMode='cover'
+            opacity={property.isSelected}
+            source={require('../../img/checkmark.png')}
+          />
+        </View>
+      </TouchableOpacity>
+    )
+  }
 
-    this.state.selected[name] = this.state.selected[name] == true ? false : true
+  onRowPress(property, index) {
+    let id = property.id
+    let selected = this.state.selected
+    if (selected[id]) {
+      delete selected[id]
+      property.isSelected = 0
+    } else {
+      selected[id] = true
+      property.isSelected = 1
+    }
+
+    var newProperties = this.state.properties;
+    newProperties[index] = property;
+
+    this.setState({
+      properties: newProperties
+    })
+
+  }
+
+  getProperties() {
+    return this.state.properties
   }
 
   onDismissPress() {
-    console.log(this.state.selected)
+    this.props.callback(this.state.properties)
     this.props.navigator.dismissLightBox();
   }
+
+  isSelected(properties) {
+    let selected = {}
+    properties.forEach( function(property) {
+      if (property.isSelected) {
+        selected[property.id] = true
+      }
+    });
+
+    return selected
+  }
+
 }
 
 const styles = StyleSheet.create({
   container: {
-    width: Dimensions.get('window').width * 0.7,
-    height: Dimensions.get('window').height * 0.5,
+    width: 240,
+    height: 260,
     backgroundColor: 'white',
     borderRadius: 10
   },

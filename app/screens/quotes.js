@@ -2,14 +2,22 @@ import React, { Component } from 'react';
 import {
   StyleSheet,
   View,
+  SectionList,
+  RefreshControl,
+  TouchableOpacity,
   Text,
-  ListView,
-  Alert,
-  Button
+  Dimensions
 } from 'react-native';
 
 import {Navigation} from 'react-native-navigation';
+import {BlurView} from 'react-native-blur';
 import Color from '../styles';
+import Constants from '../constants';
+import axios from 'axios';
+import Quote from '../view/quote';
+import URL from '../services/url';
+
+const filterButtonWidth = Dimensions.get("window").width * 0.3;
 
 export default class Quotes extends Component {
 
@@ -32,57 +40,150 @@ export default class Quotes extends Component {
     statusBarTextColorScheme: 'dark',
   };
 
+  api = null;
+
+  categories = [];
+  authors = [];
+  tags = [];
+  activeFilters = [];
+
   constructor(props) {
     super(props);
 
     this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
-    const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 
-    var quotes = [
-      {
-        title: "title 1",
-        author: "author 1",
-        body: "body 1"
-      },
-      {
-        title: "title 2",
-        author: "author 2",
-        body: "body 2"
-      }
-    ];
+    const self = this;
+
+    let url = new URL()
 
     this.state = {
-      dataSource: ds.cloneWithRows(quotes)
+      quotes: [],
+      url: url,
+      nextPage: 1
     };
+
+    let authorization = 'JWT ' + this.props.token;
+    this.api = axios.create({
+      timeout: 1000,
+      headers: {'Authorization': authorization}
+    });
+
+    this.api.interceptors.request.use(request => {
+      // console.log('Starting Request', request)
+      return request
+    });
+
+    this.api.get(URL.authorsUrl)
+      .then( function(response) {
+        self.authors = self.addSelectedKey(response.data)
+      })
+      .catch( function(error) {
+        console.log(error);
+      })
+
+    this.api.get(URL.categoriesUrl)
+      .then( function(response) {
+        self.categories = self.addSelectedKey(response.data)
+      })
+      .catch( function(error) {
+        console.log(error);
+      })
+
+    this.api.get(URL.tagsUrl)
+      .then( function(response) {
+        self.tags = self.addSelectedKey(response.data)
+      })
+      .catch( function(error) {
+        console.log(error);
+      })
+
+  }
+
+  fetchNextPage(nextPage) {
+    let self = this
+    let page = nextPage ? nextPage : this.state.nextPage
+
+    if (page) {
+      this.api.get(this.state.url.quotes(page))
+        .then( function(response) {
+          var quotes = response.data.results;
+          self.setState({
+            quotes: [...self.state.quotes, ...quotes],
+            nextPage: response.data.pages.next
+          });
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    }
   }
 
   render() {
     return (
-      <View style={{flex: 1}}>
-        <View style={style.filterCell}>
-          <Button
-            onPress={this.categoriesButtonPress.bind(this)}
-            color={Color.primary}
-            title="Categories"
-          />
-          <Button
-            onPress={this.authorsButtonPress.bind(this)}
-            color={Color.primary}
-            title="Authors"
-          />
-        </View>
-        <ListView
-          dataSource={this.state.dataSource}
-          renderRow={(quote) =>
-            <View style={style.cell}>
-              <Text style={style.title}> {quote.title} </Text>
-              <Text style={style.author}> {quote.author} </Text>
-              <Text style={style.body}> {quote.body} </Text>
-            </View>
+      <View style={style.container}>
+        <SectionList
+          sections={this.getQuotes()}
+          renderItem={({item}) =>
+            this.renderRow(item)
           }
+          keyExtractor={(item) => {return item.id}}
+          onEndReached={() => this.fetchNextPage(null)}
+          renderSectionHeader={() => this.renderHeader() }
         />
       </View>
     );
+  }
+
+  renderHeader() {
+    return (
+      <View style={style.filterCell}>
+        <BlurView
+          style={style.blurView}
+          blurType="xlight"
+          blurAmount={10}
+        />
+        <TouchableOpacity onPress={() => this.filterButtonPress('Categories') }>
+          <View style={style.buttonContainer}>
+            <Text style={[this.isFilterBy('Categories')]}>Categories</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => this.filterButtonPress('Authors') }>
+          <View style={style.buttonContainer}>
+            <Text style={[this.isFilterBy('Authors')]}>Authors</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => this.filterButtonPress('Tags') }>
+          <View style={style.buttonContainer}>
+            <Text style={[this.isFilterBy('Tags')]}>Tags</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+    )
+  }
+
+  getQuotes() {
+    let sections = [
+      {data: this.state.quotes, key: "myQuotes"}
+    ];
+    return sections
+  }
+
+  _keyExtractor(item, index) {
+    return item.id
+  }
+
+  renderRow(quote) {
+    let title = quote.title ? quote.title : ''
+    let text = quote.text ? quote.text : ''
+    let author = quote.author ? (quote.author.name ? quote.author.name : '') : ''
+
+    let date = new Date(quote.created)
+    let day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate()
+    let month = date.getMonth() + 1
+    month = month < 10 ? "0" + month : month
+    let shortDate = "" + day + "." + month + "." + date.getFullYear()
+
+    return (<Quote title={title} text={text} author={author} date={shortDate}/>)
   }
 
   onNavigatorEvent(event) {
@@ -100,22 +201,23 @@ export default class Quotes extends Component {
     }
   }
 
-  categoriesButtonPress() {
+  filterButtonPress(buttonName) {
+    this.filterBy = buttonName
+    let properties = []
 
-    var categories = [
-      {
-        id: "1",
-        name: "category1"
-      },
-      {
-        id: "2",
-        name: "category2"
-      },
-      {
-        id: "3",
-        name: "category3"
-      }
-    ];
+    switch (this.filterBy) {
+      case 'Categories':
+        properties = this.categories
+        break;
+      case 'Authors':
+        properties = this.authors
+        break;
+      case 'Tags':
+        properties = this.tags
+        break;
+      default:
+        break;
+    }
 
     this.props.navigator.showLightBox({
       screen: "filterQuotes",
@@ -123,69 +225,102 @@ export default class Quotes extends Component {
         backgroundBlur: "dark"
       },
       passProps: {
-        filter: 'Categories',
-        properties: categories
+        filter: this.filterBy,
+        properties: properties,
+        callback: (param) => this.modalDidClose(param)
       },
     });
   }
 
-  authorsButtonPress() {
+  modalDidClose(properties) {
+    this.activeFilters = []
+    this.state.url.filter = null
 
-    var authors = [
-      {
-        id: "1",
-        name: "author1"
-      },
-      {
-        id: "2",
-        name: "author2"
-      },
-      {
-        id: "3",
-        name: "author3"
-      },
-      {
-        id: "4",
-        name: "author4"
-      }
-    ];
+    this.setState({
+      quotes: []
+    })
 
-    this.props.navigator.showLightBox({
-      screen: "filterQuotes",
-      style: {
-        backgroundBlur: "dark"
-      },
-      passProps: {
-        filter: 'Authors',
-        properties: authors
-      },
+    switch (this.filterBy) {
+      case 'Categories':
+        this.categories = properties
+        break;
+      case 'Authors':
+        this.authors = properties
+        break;
+      case 'Tags':
+        this.tags = properties
+        break;
+      default:
+        break;
+    }
+
+    if (this.state.url.updateFilterUrl(this.categories, 'category')) {
+      this.activeFilters.push('Categories')
+    }
+    if (this.state.url.updateFilterUrl(this.authors, 'author')) {
+      this.activeFilters.push('Authors')
+    }
+    if (this.state.url.updateFilterUrl(this.tags, 'tags')) {
+      this.activeFilters.push('Tags')
+    }
+
+    this.fetchNextPage(1)
+
+  }
+
+  addSelectedKey(param) {
+    let properties = JSON.parse(JSON.stringify(param))
+
+    properties.forEach( function(property) {
+      property.isSelected = 0
     });
+
+    return properties
+  }
+
+  isFilterBy(filter) {
+    if (this.activeFilters.includes(filter)) {
+      return style.buttonTextFilter
+    } else {
+      return style.buttonText
+    }
   }
 
 }
 
 const style = StyleSheet.create({
-  cell: {
-    paddingTop: 8,
-    paddingBottom: 8,
-    paddingLeft: 4,
-    paddingRight: 4,
-    borderBottomWidth: 1,
-    borderColor: Color.lightBackground
-  },
-  title: {
-    fontWeight: 'bold'
-  },
-  author: {
-    color: Color.primary
-  },
-  body: {
-    paddingTop: 8,
-    paddingBottom: 8
+  blurView: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
   },
   filterCell: {
     height: 40,
     flexDirection: 'row',
-    justifyContent: 'space-around'
+    alignItems: 'center',
+    justifyContent: 'space-around',
+  },
+  container: {
+    flex: 1,
+    backgroundColor: Color.lightBackground
+  },
+  buttonContainer: {
+    flex: 1,
+    width: filterButtonWidth,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#00000000'
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: '200',
+    color: Color.darkText
+  },
+  buttonTextFilter: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: Color.primary
   }
 });

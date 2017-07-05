@@ -99,10 +99,6 @@ export default class Quotes extends Component {
 
   }
 
-  componentDidMount() {
-    this.fetchNextPage(null)
-  }
-
   fetchNextPage(nextPage) {
     let self = this
     let page = nextPage ? nextPage : this.state.nextPage

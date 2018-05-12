@@ -7,7 +7,7 @@ import {
   StyleSheet
 } from 'react-native';
 
-import {Navigation} from 'react-native-navigation';
+// import {Navigation} from 'react-native-navigation';
 import Color from '../styles.js'
 
 export default class SideMenu extends Component {
@@ -57,12 +57,12 @@ export default class SideMenu extends Component {
     AsyncStorage.multiRemove(['token', 'email'], (err) => {
       // nothing to be done
     });
-    Navigation.startSingleScreenApp({
-     screen: {
-       screen: 'login',
-       title: undefined
-     }
-    });
+    // Navigation.startSingleScreenApp({
+    //  screen: {
+    //    screen: 'login',
+    //    title: undefined
+    //  }
+    // });
   }
 }
 

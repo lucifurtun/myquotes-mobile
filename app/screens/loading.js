@@ -6,7 +6,7 @@ import {
   Image
 } from 'react-native';
 
-import {Navigation} from 'react-native-navigation';
+// import {Navigation} from 'react-native-navigation';
 import Color from '../styles';
 import axios from 'axios';
 
@@ -49,30 +49,30 @@ export default class Loading extends Component {
   }
 
   goToLogin() {
-    Navigation.startSingleScreenApp({
-     screen: {
-       screen: 'login',
-       title: undefined
-     }
-    });
+    // Navigation.startSingleScreenApp({
+    //  screen: {
+    //    screen: 'login',
+    //    title: undefined
+    //  }
+    // });
   }
 
   goToQuotes(token) {
-    Navigation.startSingleScreenApp({
-      screen: {
-        screen: 'quotes',
-        title: 'myQuotes'
-      },
-      drawer: {
-        left: {
-          screen: 'sideMenu'
-        },
-        disableOpenGesture: true
-      },
-      passProps: {
-        token: token
-      }
-    });
+    // Navigation.startSingleScreenApp({
+    //   screen: {
+    //     screen: 'quotes',
+    //     title: 'myQuotes'
+    //   },
+    //   drawer: {
+    //     left: {
+    //       screen: 'sideMenu'
+    //     },
+    //     disableOpenGesture: true
+    //   },
+    //   passProps: {
+    //     token: token
+    //   }
+    // });
   }
 
 }

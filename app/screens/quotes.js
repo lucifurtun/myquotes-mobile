@@ -9,8 +9,6 @@ import {
   Dimensions
 } from 'react-native';
 
-import {Navigation} from 'react-native-navigation';
-import {BlurView} from 'react-native-blur';
 import Color from '../styles';
 import Constants from '../constants';
 import axios from 'axios';
@@ -50,7 +48,6 @@ export default class Quotes extends Component {
   constructor(props) {
     super(props);
 
-    this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
 
     const self = this;
 
@@ -137,11 +134,6 @@ export default class Quotes extends Component {
   renderHeader() {
     return (
       <View style={style.filterCell}>
-        <BlurView
-          style={style.blurView}
-          blurType="xlight"
-          blurAmount={10}
-        />
         <TouchableOpacity onPress={() => this.filterButtonPress('Categories') }>
           <View style={style.buttonContainer}>
             <Text style={[this.isFilterBy('Categories')]}>Categories</Text>

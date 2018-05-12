@@ -9,7 +9,6 @@ import {
   View
 } from 'react-native';
 
-import {Navigation} from 'react-native-navigation';
 import Color from '../styles';
 import axios from 'axios';
 
@@ -95,26 +94,13 @@ export default class Login extends Component {
       self.goToQuotes(token)
     })
     .catch(function (error) {
+      console.log(error)
       Alert.alert('Unable to log in');
     });
   }
 
   goToQuotes(token) {
-    Navigation.startSingleScreenApp({
-      screen: {
-        screen: 'quotes',
-        title: 'myQuotes'
-      },
-      drawer: {
-        left: {
-          screen: 'sideMenu'
-        },
-        disableOpenGesture: true
-      },
-      passProps: {
-        token: token
-      }
-    });
+    this.props.navigation.navigate('quotes')
   }
 
 }

@@ -196,7 +196,10 @@ export default class Quotes extends Component {
     if (event.id === 'add') {
       this.props.navigator.showModal({
         title: "Add Quote",
-        screen: "addQuote"
+        screen: "addQuote",
+        // passProps: {
+        //   tags: ["tag1", "tag2"]
+        // }
       });
     }
   }

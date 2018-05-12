@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import {
   Alert,
   StyleSheet,
@@ -9,10 +9,12 @@ import {
   View
 } from 'react-native';
 
+import store from '../store'
+
 import Color from '../styles';
 import axios from 'axios';
 
-export default class Login extends Component {
+export default class Login extends React.Component {
 
   static navigatorStyle = {
     navBarHidden: true
@@ -84,6 +86,9 @@ export default class Login extends Component {
     .then(function (response) {
       let token = response.data.token;
       let email = self.state.textEmail
+
+        console.log(token)
+      store.dispatch({type: 'SET_TOKEN', value: token})
 
       AsyncStorage.setItem('token', token, () => {
         // nothing to be done

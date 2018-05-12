@@ -14,6 +14,7 @@ import Constants from '../constants';
 import axios from 'axios';
 import Quote from '../view/quote';
 import URL from '../services/url';
+import store from "../store"
 
 const filterButtonWidth = Dimensions.get("window").width * 0.3;
 
@@ -59,7 +60,9 @@ export default class Quotes extends Component {
       nextPage: 1
     };
 
-    let authorization = 'JWT ' + this.props.token;
+    let token = store.getState().auth.token;
+
+    let authorization = 'JWT ' + token;
     this.api = axios.create({
       timeout: 1000,
       headers: {'Authorization': authorization}

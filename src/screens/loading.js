@@ -6,9 +6,9 @@ import {
   Image
 } from 'react-native';
 
-// import {Navigation} from 'react-native-navigation';
 import Color from '../styles';
 import axios from 'axios';
+import {store} from "../store"
 
 export default class Loading extends Component {
   constructor(props) {
@@ -30,13 +30,14 @@ export default class Loading extends Component {
 
   login() {
     let self = this
-    AsyncStorage.getItem('token', (error, result) => {
-      if (result) {
+
+    let token = store.getState().auth.token
+    if (token) {
         axios.post('https://myquotes.io/api/token/verify/', {
-          token: result
+          token: token
         })
         .then(function (response) {
-          self.goToQuotes(result);
+          self.goToQuotes();
         })
         .catch(function (error) {
           self.goToLogin();
@@ -44,35 +45,15 @@ export default class Loading extends Component {
       } else {
         this.goToLogin();
       }
-    });
 
   }
 
   goToLogin() {
-    // Navigation.startSingleScreenApp({
-    //  screen: {
-    //    screen: 'login',
-    //    title: undefined
-    //  }
-    // });
+    this.props.navigation.navigate('login')
   }
 
-  goToQuotes(token) {
-    // Navigation.startSingleScreenApp({
-    //   screen: {
-    //     screen: 'quotes',
-    //     title: 'myQuotes'
-    //   },
-    //   drawer: {
-    //     left: {
-    //       screen: 'sideMenu'
-    //     },
-    //     disableOpenGesture: true
-    //   },
-    //   passProps: {
-    //     token: token
-    //   }
-    // });
+  goToQuotes() {
+    this.props.navigation.navigate('quotes')
   }
 
 }

@@ -1,4 +1,8 @@
 rootProject.name = 'myQuotes'
+include ':react-native-wordpress-editor'
+project(':react-native-wordpress-editor').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-wordpress-editor/android')
+include ':react-native-vector-icons'
+project(':react-native-vector-icons').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-vector-icons/android')
 include ':react-native-blur'
 project(':react-native-blur').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-blur/android')
 

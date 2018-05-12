@@ -3,6 +3,8 @@ package com.myquotes;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.wix.RNWordpressEditor.RNWordpressEditorPackage;
+import com.oblador.vectoricons.VectorIconsPackage;
 import com.cmcewen.blurview.BlurViewPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
@@ -26,6 +28,8 @@ public class MainApplication extends NavigationApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNWordpressEditorPackage(),
+            new VectorIconsPackage(),
             new BlurViewPackage()
       );
     }

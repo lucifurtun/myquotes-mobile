@@ -2,6 +2,8 @@ import {AppRegistry} from 'react-native'
 import React from "react"
 
 import {StackNavigator} from 'react-navigation'
+import {PersistGate} from 'redux-persist/integration/react'
+
 
 import AddQuote from "./src/screens/addQuote"
 import FilterQuotes from "./src/screens/filterQuotes"
@@ -10,7 +12,7 @@ import Loading from "./src/screens/loading"
 import Quotes from "./src/screens/quotes"
 import Login from "./src/screens/login"
 import {Provider} from "react-redux"
-import store from "./src/store"
+import {store, persistor} from "./src/store"
 
 const Navigator = StackNavigator({
     // loading: {screen: Loading},
@@ -30,7 +32,9 @@ class App extends React.Component {
     render() {
         return (
             <Provider store={store}>
-                <Navigator/>
+                <PersistGate loading={null} persistor={persistor}>
+                    <Navigator/>
+                </PersistGate>
             </Provider>
         )
     }

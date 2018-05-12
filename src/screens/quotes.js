@@ -14,7 +14,7 @@ import Constants from '../constants';
 import axios from 'axios';
 import Quote from '../view/quote';
 import URL from '../services/url';
-import store from "../store"
+import {store} from "../store"
 
 const filterButtonWidth = Dimensions.get("window").width * 0.3;
 

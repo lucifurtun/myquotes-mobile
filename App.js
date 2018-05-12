@@ -1,7 +1,7 @@
 import {AppRegistry} from 'react-native'
 import React from "react"
 
-import {StackNavigator} from 'react-navigation'
+import {createStackNavigator} from 'react-navigation'
 import {PersistGate} from 'redux-persist/integration/react'
 
 
@@ -14,7 +14,7 @@ import Login from "./src/screens/login"
 import {Provider} from "react-redux"
 import {store, persistor} from "./src/store"
 
-const Navigator = StackNavigator({
+const Navigator = createStackNavigator({
     // loading: {screen: Loading},
     login: {screen: Login},
     quotes: {screen: Quotes},

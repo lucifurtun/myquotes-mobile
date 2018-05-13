@@ -54,4 +54,4 @@ class App extends React.Component {
 }
 
 
-AppRegistry.registerComponent('myquotes', () => App)
+AppRegistry.registerComponent('MyQuotes', () => App)

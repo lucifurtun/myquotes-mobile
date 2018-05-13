@@ -1,4 +1,7 @@
 {
-  "name": "myQuotes",
-  "displayName": "myQuotes"
+  "expo": {
+    "sdkVersion": "27.0.0"
+  },
+  "name": "myquotes",
+  "displayName": "MyQuotes"
 }

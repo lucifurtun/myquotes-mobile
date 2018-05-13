@@ -4,11 +4,12 @@ import {
   TextInput,
   View,
   ScrollView,
-  StyleSheet
+  StyleSheet,
+  Alert
 } from 'react-native';
 
 import Color from '../styles';
-import TagInput from 'react-native-tag-input';
+import MultiSelect from 'react-native-multiple-select';
 
 export default class AddQuote extends Component {
 
@@ -28,16 +29,29 @@ export default class AddQuote extends Component {
     navBarButtonColor: Color.primary
   };
 
+  tags = [
+    {
+      id: 1,
+      name: "one"
+    },
+    {
+      id: 2,
+      name: "two"
+    }
+  ];
+
   constructor(props) {
     super(props);
     // if you want to listen on navigator events, set this up
     this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
     this.state = {
-      tags: [
-        'tag1',
-        'tag2'
-      ]
+      title: "",
+      author: "",
+      selectedItems: []
     }
+
+    this.tags = this.props.tags;
+    Alert.alert("Tags", this.tags)
   }
 
   render() {
@@ -47,8 +61,8 @@ export default class AddQuote extends Component {
         <TextInput
           style={styles.title}
           placeholder= 'title'
-          // onChangeText={(textEmail) => this.setState({textEmail})}
-          // value={this.state.textEmail}
+          onChangeText={(title) => this.setState({title})}
+          value={this.state.title}
           multiline = {true}
           numberOfLines = {0}
         />
@@ -56,34 +70,47 @@ export default class AddQuote extends Component {
         <TextInput
           style={styles.author}
           placeholder= 'author'
-          // onChangeText={(textEmail) => this.setState({textEmail})}
-          // value={this.state.textEmail}
+          onChangeText={(author) => this.setState({author})}
+          value={this.state.author}
           multiline = {true}
           numberOfLines = {0}
         />
 
         <Text style={styles.date}>some date</Text>
 
-        <TagInput
-          value={this.state.tags}
-          onChange={(tags) => this.onTagsChange(tags)}
+        <MultiSelect
+          items={this.tags}
+          uniqueKey="id"
+          onSelectedItemsChange={this.onSelectedItemsChange}
+          selectedItems={this.state.selectedItems}
+          selectText="Pick Items"
+          searchInputPlaceholderText="Search Items..."
+          tagRemoveIconColor="#CCC"
+          tagBorderColor="#CCC"
+          tagTextColor="#CCC"
+          selectedItemTextColor="#CCC"
+          selectedItemIconColor="#CCC"
+          itemTextColor="#D12345"
+          searchInputStyle={{ color: '#CCC' }}
+          submitButtonColor="#CCC"
+          submitButtonText="Submit"
         />
 
       </ScrollView>
     );
   }
 
-  onTagsChange(tags) {
-    this.setState({
-      tags,
-    });
-  }
+  onSelectedItemsChange = selectedItems => {
+    this.setState({ selectedItems });
+  };
 
   onNavigatorEvent(event) {
     if (event.id == 'cancel') {
       this.props.navigator.dismissModal();
     } else if (event.id == 'add') {
       // do something
+      Alert.alert("Alert", this.state.title);
+      Alert.alert("Alert", this.state.author);
     }
   }
 }

@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component} from 'react'
 import {
     StyleSheet,
     View,
@@ -7,21 +7,22 @@ import {
     FlatList,
     TouchableOpacity,
     Dimensions
-} from 'react-native';
+} from 'react-native'
 
-import Color from '../styles';
+import Color from '../styles'
+import {connect} from "react-redux"
 
-export default class FilterQuotes extends Component {
+class FilterQuotes extends Component {
 
     constructor(props) {
-        super(props);
+        super(props)
 
         let properties = JSON.parse(JSON.stringify(this.props.properties))
 
         this.state = {
             selected: this.isSelected(properties),
             properties: properties
-        };
+        }
 
     }
 
@@ -45,7 +46,7 @@ export default class FilterQuotes extends Component {
                     <Text style={styles.button}>Close</Text>
                 </TouchableOpacity>
             </View>
-        );
+        )
     }
 
     renderRow(property, index) {
@@ -68,15 +69,15 @@ export default class FilterQuotes extends Component {
         let id = property.id
         let selected = this.state.selected
         if (selected[id]) {
-            delete selected[id];
+            delete selected[id]
             property.isSelected = 0
         } else {
-            selected[id] = true;
+            selected[id] = true
             property.isSelected = 1
         }
 
-        var newProperties = this.state.properties;
-        newProperties[index] = property;
+        var newProperties = this.state.properties
+        newProperties[index] = property
 
         this.setState({
             properties: newProperties
@@ -90,7 +91,7 @@ export default class FilterQuotes extends Component {
 
     onDismissPress() {
         this.props.callback(this.state.properties)
-        this.props.navigator.dismissLightBox();
+        this.props.navigator.dismissLightBox()
     }
 
     isSelected(properties) {
@@ -99,7 +100,7 @@ export default class FilterQuotes extends Component {
             if (property.isSelected) {
                 selected[property.id] = true
             }
-        });
+        })
 
         return selected
     }
@@ -108,8 +109,8 @@ export default class FilterQuotes extends Component {
 
 const styles = StyleSheet.create({
     container: {
-        width: 240,
-        height: 320,
+        // width: 240,
+        // height: 320,
         backgroundColor: 'white',
         borderRadius: 10
     },
@@ -145,4 +146,10 @@ const styles = StyleSheet.create({
         width: 14,
         height: 14
     }
-});
+})
+
+function mapStateToProps(state) {
+    return {properties: state.filters.authors}
+}
+
+export default connect(mapStateToProps)(FilterQuotes)

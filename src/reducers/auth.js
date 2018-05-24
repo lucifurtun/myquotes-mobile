@@ -2,7 +2,7 @@ const initialState = {
     'token': null
 }
 
-const auth = (state = initialState, action) => {
+export const auth = (state = initialState, action) => {
     console.log(state)
     console.log(action)
 
@@ -16,4 +16,3 @@ const auth = (state = initialState, action) => {
     return state
 }
 
-export default auth

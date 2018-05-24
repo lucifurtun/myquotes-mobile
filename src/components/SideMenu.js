@@ -16,7 +16,7 @@ const SideMenu = ({navigation}) => {
             <SideMenuItem
                 title="Account Settings"
                 icon="md/settings"
-                onPress={() => navigation.navigate('account')}
+                onPress={() => navigation.navigate('test')}
             />
             <SideMenuItem
                 title="Log out"

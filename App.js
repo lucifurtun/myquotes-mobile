@@ -1,4 +1,6 @@
 import {AppRegistry} from 'react-native'
+import {YellowBox} from 'react-native'
+
 import React from "react"
 
 import {createDrawerNavigator, createStackNavigator, createSwitchNavigator} from 'react-navigation'
@@ -14,12 +16,18 @@ import Login from "./src/screens/login"
 import {Provider} from "react-redux"
 import {store, persistor} from "./src/store"
 import SideMenu from "./src/components/SideMenu"
+import ModalScreen from "./src/screens/test"
+import FilterModal from "./src/components/FilterModal"
 
 
 const QuotesNavigator = createStackNavigator({
     quotes: {screen: Quotes},
     addQuote: {screen: AddQuote},
     filterQuotes: {screen: FilterQuotes},
+    test: {screen: ModalScreen}
+}, {
+    mode: 'modal',
+    headerMode: 'none',
 })
 
 const AppNavigator = createDrawerNavigator({
@@ -33,7 +41,7 @@ const RootNavigator = createSwitchNavigator({
     login: {screen: Login},
     app: AppNavigator
 }, {
-    initialRouteName: 'login'
+    initialRouteName: 'loading'
 })
 
 
@@ -47,6 +55,7 @@ class App extends React.Component {
             <Provider store={store}>
                 <PersistGate loading={null} persistor={persistor}>
                     <RootNavigator/>
+                    <FilterModal />
                 </PersistGate>
             </Provider>
         )
@@ -55,3 +64,5 @@ class App extends React.Component {
 
 
 AppRegistry.registerComponent('MyQuotes', () => App)
+
+YellowBox.ignoreWarnings(['Warning: isMounted(...) is deprecated'])

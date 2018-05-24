@@ -15,6 +15,7 @@ import axios from 'axios';
 import Quote from '../view/quote';
 import URL from '../services/url';
 import {store} from "../store"
+import {modal} from "../reducers"
 
 const filterButtonWidth = Dimensions.get("window").width * 0.3;
 
@@ -76,6 +77,7 @@ export default class Quotes extends Component {
     this.api.get(URL.authorsUrl)
       .then( function(response) {
         self.authors = self.addSelectedKey(response.data)
+          store.dispatch({type: 'SET_AUTHORS', authors: self.authors})
       })
       .catch( function(error) {
         console.log(error);
@@ -84,6 +86,7 @@ export default class Quotes extends Component {
     this.api.get(URL.categoriesUrl)
       .then( function(response) {
         self.categories = self.addSelectedKey(response.data)
+          store.dispatch({type: 'SET_CATEGORIES', categories: self.categories})
       })
       .catch( function(error) {
         console.log(error);
@@ -92,6 +95,7 @@ export default class Quotes extends Component {
     this.api.get(URL.tagsUrl)
       .then( function(response) {
         self.tags = self.addSelectedKey(response.data)
+          store.dispatch({type: 'SET_TAGS', tags: self.tags})
       })
       .catch( function(error) {
         console.log(error);
@@ -217,17 +221,7 @@ export default class Quotes extends Component {
         break;
     }
 
-    this.props.navigator.showLightBox({
-      screen: "filterQuotes",
-      style: {
-        backgroundBlur: "dark"
-      },
-      passProps: {
-        filter: this.filterBy,
-        properties: properties,
-        callback: (param) => this.modalDidClose(param)
-      },
-    });
+    store.dispatch({type: modal.MODAL_OPEN})
   }
 
   modalDidClose(properties) {

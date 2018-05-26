@@ -16,6 +16,7 @@ import Quote from '../view/quote';
 import URL from '../services/url';
 import {store} from "../store"
 import {modal} from "../reducers"
+import {filters} from "../reducers"
 
 const filterButtonWidth = Dimensions.get("window").width * 0.3;
 
@@ -77,7 +78,7 @@ export default class Quotes extends Component {
     this.api.get(URL.authorsUrl)
       .then( function(response) {
         self.authors = self.addSelectedKey(response.data)
-          store.dispatch({type: 'SET_AUTHORS', authors: self.authors})
+          store.dispatch({type: filters.STORE_AUTHORS, authors: self.authors})
       })
       .catch( function(error) {
         console.log(error);
@@ -86,7 +87,7 @@ export default class Quotes extends Component {
     this.api.get(URL.categoriesUrl)
       .then( function(response) {
         self.categories = self.addSelectedKey(response.data)
-          store.dispatch({type: 'SET_CATEGORIES', categories: self.categories})
+          store.dispatch({type: filters.STORE_CATEGORIES, categories: self.categories})
       })
       .catch( function(error) {
         console.log(error);
@@ -95,12 +96,11 @@ export default class Quotes extends Component {
     this.api.get(URL.tagsUrl)
       .then( function(response) {
         self.tags = self.addSelectedKey(response.data)
-          store.dispatch({type: 'SET_TAGS', tags: self.tags})
+          store.dispatch({type: filters.STORE_TAGS, tags: self.tags})
       })
       .catch( function(error) {
         console.log(error);
       })
-
   }
 
   fetchNextPage(nextPage) {
@@ -210,12 +210,15 @@ export default class Quotes extends Component {
     switch (this.filterBy) {
       case 'Categories':
         properties = this.categories
+          store.dispatch({type: modal.SET_FILTER, selectedFilter: modal.FILTER_CATEGORIES})
         break;
       case 'Authors':
         properties = this.authors
+          store.dispatch({type: modal.SET_FILTER, selectedFilter: modal.FILTER_AUTHORS})
         break;
       case 'Tags':
         properties = this.tags
+          store.dispatch({type: modal.SET_FILTER, selectedFilter: modal.FILTER_TAGS})
         break;
       default:
         break;

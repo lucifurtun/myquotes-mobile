@@ -11,6 +11,7 @@ import {
 
 import Color from '../styles'
 import {connect} from "react-redux"
+import {modal} from "../reducers"
 
 class FilterQuotes extends Component {
 
@@ -38,13 +39,9 @@ class FilterQuotes extends Component {
                     extraData={this.state}
                     renderItem={({item, index}) => this.renderRow(item, index)}
                     keyExtractor={(item) => {
-                        return item.id
+                        return `${item.id}`
                     }}
                 />
-
-                <TouchableOpacity onPress={() => this.onDismissPress()}>
-                    <Text style={styles.button}>Close</Text>
-                </TouchableOpacity>
             </View>
         )
     }
@@ -149,7 +146,23 @@ const styles = StyleSheet.create({
 })
 
 function mapStateToProps(state) {
-    return {properties: state.filters.authors}
+    let properties = []
+
+    switch (state.modal.selectedFilter) {
+        case modal.FILTER_AUTHORS:
+            properties = state.filters.authors
+            break
+        case modal.FILTER_CATEGORIES:
+            properties = state.filters.categories
+            break
+        case modal.FILTER_TAGS:
+            properties = state.filters.tags
+            break
+    }
+
+    return {
+        properties: properties
+    }
 }
 
 export default connect(mapStateToProps)(FilterQuotes)

@@ -1,20 +1,37 @@
 export const MODAL_OPEN = 'MODAL_OPEN'
 export const MODAL_CLOSE = 'MODAL_CLOSE'
+export const SET_FILTER = 'SET_FILTER'
+
+export const FILTER_AUTHORS = 'authors'
+export const FILTER_CATEGORIES = 'categories'
+export const FILTER_TAGS = 'tags'
+
 
 const initialState = {
-    'opened': false
+    opened: false,
+    selectedFilter: null
 }
 
 
 export const modal = (state = initialState, action) => {
-    console.log(state)
     console.log(action)
-
     if (action.type === MODAL_OPEN) {
-        return {opened: true}
+        return {
+            ...state,
+            opened: true
+        }
     }
     if (action.type === MODAL_CLOSE) {
-        return {opened: false}
+        return {
+            ...state,
+            opened: false
+        }
+    }
+    if (action.type === SET_FILTER) {
+        return {
+            ...state,
+            selectedFilter: action.selectedFilter
+        }
     }
 
     return state

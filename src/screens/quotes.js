@@ -18,10 +18,12 @@ import {store} from "../store"
 import {modal} from "../reducers"
 import {filters} from "../reducers"
 import {connect} from "react-redux"
+import {orderBy} from 'lodash'
+import {SET_NEXT_PAGE, STORE_QUOTES} from "../reducers/quotes"
 
 const filterButtonWidth = Dimensions.get("window").width * 0.3
 
-export default class Quotes extends Component {
+class Quotes extends Component {
 
     static navigatorButtons = {
         leftButtons: [{
@@ -52,7 +54,6 @@ export default class Quotes extends Component {
     constructor(props) {
         super(props)
 
-
         const self = this
 
         let url = new URL()
@@ -69,11 +70,6 @@ export default class Quotes extends Component {
         this.api = axios.create({
             timeout: 1000,
             headers: {'Authorization': authorization}
-        })
-
-        this.api.interceptors.request.use(request => {
-            // console.log('Starting Request', request)
-            return request
         })
 
         this.api.get(URL.authorsUrl)
@@ -108,16 +104,16 @@ export default class Quotes extends Component {
         let self = this
         let page = nextPage ? nextPage : this.state.nextPage
         // let page = nextPage ? nextPage : this.props.currentPage
+        console.log(page)
 
         if (page) {
             this.api.get(this.state.url.quotes(page))
                 .then(function (response) {
                     var quotes = response.data.results
-
-                    // this.props.dispatch({type: quotes, quotes: [...self.state.quotes, ...quotes]})
+                    self.props.dispatch({type: STORE_QUOTES, quotes: quotes})
+                    self.props.dispatch({type: SET_NEXT_PAGE, page: response.data.pages.next})
 
                     self.setState({
-                        quotes: [...self.state.quotes, ...quotes],
                         nextPage: response.data.pages.next
                     })
                 })
@@ -131,7 +127,7 @@ export default class Quotes extends Component {
         return (
             <View style={style.container}>
                 <SectionList
-                    sections={[{data: this.state.quotes, key: "myQuotes"}]}
+                    sections={[{data: orderBy(this.props.quotes, 'id', 'desc'), key: "myQuotes"}]}
                     renderItem={({item}) =>
                         this.renderRow(item)
                     }
@@ -322,3 +318,5 @@ function mapStateToProps(state) {
         currentPage: state.quotes.currentPage
     }
 }
+
+export default connect(mapStateToProps)(Quotes)

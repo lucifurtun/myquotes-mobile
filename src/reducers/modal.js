@@ -1,3 +1,6 @@
+import {takeEvery, put} from "redux-saga/effects"
+import {quotes} from "."
+
 export const MODAL_OPEN = 'MODAL_OPEN'
 export const MODAL_CLOSE = 'MODAL_CLOSE'
 export const SET_FILTER = 'SET_FILTER'
@@ -13,8 +16,16 @@ const initialState = {
 }
 
 
+function* resetQuotes(action) {
+    yield put({type: quotes.RESET_QUOTES})
+}
+
+export function* saga() {
+    yield takeEvery(MODAL_CLOSE, resetQuotes)
+}
+
+
 export const modal = (state = initialState, action) => {
-    console.log(action)
     if (action.type === MODAL_OPEN) {
         return {
             ...state,

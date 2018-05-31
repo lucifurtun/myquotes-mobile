@@ -6,43 +6,35 @@ import {
     Image,
     FlatList,
     TouchableOpacity,
-    Dimensions
 } from 'react-native'
+
+import {values} from 'lodash'
 
 import Color from '../styles'
 import {connect} from "react-redux"
 import {modal} from "../reducers"
+import {filters} from "../reducers"
 
 class FilterQuotes extends Component {
 
     constructor(props) {
         super(props)
 
-        let properties = JSON.parse(JSON.stringify(this.props.properties))
-
         this.state = {
-            selected: this.isSelected(properties),
-            properties: properties
+            selected: this.isSelected(this.props.properties)
         }
-
     }
 
     render() {
         return (
-            <View style={styles.container}>
-                <Text style={styles.title}>
-                    Filter by {this.props.filter}
-                </Text>
-
-                <FlatList
-                    data={this.getProperties()}
-                    extraData={this.state}
-                    renderItem={({item, index}) => this.renderRow(item, index)}
-                    keyExtractor={(item) => {
-                        return `${item.id}`
-                    }}
-                />
-            </View>
+            <FlatList
+                data={this.props.properties}
+                extraData={this.state}
+                renderItem={({item, index}) => this.renderRow(item, index)}
+                keyExtractor={(item) => {
+                    return `${item.id}`
+                }}
+            />
         )
     }
 
@@ -63,6 +55,7 @@ class FilterQuotes extends Component {
     }
 
     onRowPress(property, index) {
+        console.log(index)
         let id = property.id
         let selected = this.state.selected
         if (selected[id]) {
@@ -73,22 +66,15 @@ class FilterQuotes extends Component {
             property.isSelected = 1
         }
 
-        var newProperties = this.state.properties
+        let newProperties = this.props.properties
         newProperties[index] = property
 
+        this.props.dispatch({type: this.props.dispatcherType, items: newProperties})
+
         this.setState({
-            properties: newProperties
+            selected: this.isSelected(newProperties)
         })
 
-    }
-
-    getProperties() {
-        return this.state.properties
-    }
-
-    onDismissPress() {
-        this.props.callback(this.state.properties)
-        this.props.navigator.dismissLightBox()
     }
 
     isSelected(properties) {
@@ -105,12 +91,6 @@ class FilterQuotes extends Component {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        // width: 240,
-        // height: 320,
-        backgroundColor: 'white',
-        borderRadius: 10
-    },
     title: {
         fontSize: 16,
         textAlign: 'center',
@@ -147,21 +127,27 @@ const styles = StyleSheet.create({
 
 function mapStateToProps(state) {
     let properties = []
+    let dispatcherType = null
 
-    switch (state.modal.selectedFilter) {
+    switch (state.modal.selectedFilterType) {
         case modal.FILTER_AUTHORS:
             properties = state.filters.authors
+            dispatcherType = filters.STORE_AUTHORS
             break
         case modal.FILTER_CATEGORIES:
             properties = state.filters.categories
+            dispatcherType = filters.STORE_CATEGORIES
             break
         case modal.FILTER_TAGS:
             properties = state.filters.tags
+            dispatcherType = filters.STORE_TAGS
             break
     }
 
     return {
-        properties: properties
+        properties: values(properties),
+        dispatcherType: dispatcherType,
+        selectedFilters: state.selectedFilters
     }
 }
 

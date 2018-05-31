@@ -1,4 +1,4 @@
-import {Button, Modal, View, Text} from "react-native"
+import {Button, Modal, View, Text, StyleSheet} from "react-native"
 import React from "react"
 import {connect} from "react-redux"
 import {modal} from "../reducers"
@@ -19,26 +19,25 @@ const FilterModal = ({title, visible, dispatch}) => (
                 )
             }
 
-            <View>
+            <View style={styles.container}>
+                <FilterQuotes/>
                 <Button
-                    title="OK"
+                    title="Apply"
                     onPress={() => {
-                        console.log('ok')
                         dispatch({type: modal.MODAL_CLOSE})
                     }}
                 />
-                <Button
-                    title="Cancel"
-                    onPress={() => {
-                        console.log('cancel')
-                        dispatch({type: modal.MODAL_CLOSE})
-                    }}
-                />
-                <FilterQuotes />
             </View>
         </View>
     </Modal>
 )
+
+const styles = StyleSheet.create({
+    container: {
+        height: '100%',
+        backgroundColor: 'white',
+    }
+})
 
 
 function mapStateToProps(state) {

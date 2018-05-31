@@ -3,14 +3,14 @@ import {
     StyleSheet,
     View,
     SectionList,
-    RefreshControl,
     TouchableOpacity,
     Text,
     Dimensions
 } from 'react-native'
 
+import qs from 'qs'
+
 import Color from '../styles'
-import Constants from '../constants'
 import axios from 'axios'
 import Quote from '../view/quote'
 import URL from '../services/url'
@@ -18,8 +18,8 @@ import {store} from "../store"
 import {modal} from "../reducers"
 import {filters} from "../reducers"
 import {connect} from "react-redux"
-import {orderBy} from 'lodash'
-import {SET_NEXT_PAGE, STORE_QUOTES} from "../reducers/quotes"
+import {orderBy, pickBy, keys} from 'lodash'
+import {STORE_QUOTES} from "../reducers/quotes"
 
 const filterButtonWidth = Dimensions.get("window").width * 0.3
 
@@ -59,9 +59,7 @@ class Quotes extends Component {
         let url = new URL()
 
         this.state = {
-            quotes: [],
             url: url,
-            nextPage: 1
         }
 
         let token = store.getState().auth.token
@@ -74,8 +72,8 @@ class Quotes extends Component {
 
         this.api.get(URL.authorsUrl)
             .then(function (response) {
-                self.authors = self.addSelectedKey(response.data)
-                store.dispatch({type: filters.STORE_AUTHORS, authors: self.authors})
+                let authors = self.addSelectedKey(response.data)
+                store.dispatch({type: filters.STORE_AUTHORS, items: authors})
             })
             .catch(function (error) {
                 console.log(error)
@@ -83,8 +81,8 @@ class Quotes extends Component {
 
         this.api.get(URL.categoriesUrl)
             .then(function (response) {
-                self.categories = self.addSelectedKey(response.data)
-                store.dispatch({type: filters.STORE_CATEGORIES, categories: self.categories})
+                let categories = self.addSelectedKey(response.data)
+                store.dispatch({type: filters.STORE_CATEGORIES, items: categories})
             })
             .catch(function (error) {
                 console.log(error)
@@ -92,30 +90,47 @@ class Quotes extends Component {
 
         this.api.get(URL.tagsUrl)
             .then(function (response) {
-                self.tags = self.addSelectedKey(response.data)
-                store.dispatch({type: filters.STORE_TAGS, tags: self.tags})
+                let tags = self.addSelectedKey(response.data)
+                store.dispatch({type: filters.STORE_TAGS, items: tags})
             })
             .catch(function (error) {
                 console.log(error)
             })
     }
 
+    getFilters() {
+        let author = keys(pickBy(this.props.filters.authors, (item) => item.isSelected))
+        let category = keys(pickBy(this.props.filters.categories, (item) => item.isSelected))
+        let tag = keys(pickBy(this.props.filters.tags, (item) => item.isSelected))
+
+        return {
+            author,
+            category,
+            tag
+        }
+    }
+
     fetchNextPage(nextPage) {
         let self = this
-        let page = nextPage ? nextPage : this.state.nextPage
-        // let page = nextPage ? nextPage : this.props.currentPage
-        console.log(page)
+        let page = nextPage ? nextPage : this.props.currentPage
+
+        let filters = this.getFilters()
+
+        let params = {
+            ...filters,
+            page: page,
+        }
+
+        let config = {
+            params: params,
+            paramsSerializer: (params) => qs.stringify(params, {indices: false})
+        }
 
         if (page) {
-            this.api.get(this.state.url.quotes(page))
+            this.api.get(URL.quotesUrl, config)
                 .then(function (response) {
-                    var quotes = response.data.results
-                    self.props.dispatch({type: STORE_QUOTES, quotes: quotes})
-                    self.props.dispatch({type: SET_NEXT_PAGE, page: response.data.pages.next})
-
-                    self.setState({
-                        nextPage: response.data.pages.next
-                    })
+                    let quotes = response.data.results
+                    self.props.dispatch({type: STORE_QUOTES, quotes: quotes, page: response.data.pages.next})
                 })
                 .catch(function (error) {
                     console.log(error)
@@ -202,15 +217,15 @@ class Quotes extends Component {
         switch (this.filterBy) {
             case 'Categories':
                 properties = this.categories
-                store.dispatch({type: modal.SET_FILTER, selectedFilter: modal.FILTER_CATEGORIES})
+                store.dispatch({type: modal.SET_FILTER, selectedFilterType: modal.FILTER_CATEGORIES})
                 break
             case 'Authors':
                 properties = this.authors
-                store.dispatch({type: modal.SET_FILTER, selectedFilter: modal.FILTER_AUTHORS})
+                store.dispatch({type: modal.SET_FILTER, selectedFilterType: modal.FILTER_AUTHORS})
                 break
             case 'Tags':
                 properties = this.tags
-                store.dispatch({type: modal.SET_FILTER, selectedFilter: modal.FILTER_TAGS})
+                store.dispatch({type: modal.SET_FILTER, selectedFilterType: modal.FILTER_TAGS})
                 break
             default:
                 break
@@ -315,7 +330,8 @@ const style = StyleSheet.create({
 function mapStateToProps(state) {
     return {
         quotes: state.quotes.results,
-        currentPage: state.quotes.currentPage
+        currentPage: state.quotes.currentPage,
+        filters: state.filters
     }
 }
 

@@ -12,7 +12,7 @@ export const FILTER_TAGS = 'tags'
 
 const initialState = {
     opened: false,
-    selectedFilter: null
+    selectedFilterType: null
 }
 
 
@@ -41,7 +41,7 @@ export const modal = (state = initialState, action) => {
     if (action.type === SET_FILTER) {
         return {
             ...state,
-            selectedFilter: action.selectedFilter
+            selectedFilterType: action.selectedFilterType
         }
     }
 

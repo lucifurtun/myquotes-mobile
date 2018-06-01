@@ -18,7 +18,7 @@ import {store} from "../store"
 import {modal} from "../reducers"
 import {filters} from "../reducers"
 import {connect} from "react-redux"
-import {orderBy, pickBy, keys} from 'lodash'
+import {orderBy, pickBy, keys, assign, map} from 'lodash'
 import {STORE_QUOTES, getQuotesSelector} from "../reducers/quotes"
 
 const filterButtonWidth = Dimensions.get("window").width * 0.3
@@ -67,7 +67,8 @@ class Quotes extends Component {
 
         this.api.get(URL.authorsUrl)
             .then(function (response) {
-                let authors = self.addSelectedKey(response.data)
+                let authors = map(response.data, (item) => assign(item, {isSelected: 0}))
+                console.log(authors)
                 store.dispatch({type: filters.STORE_AUTHORS, items: authors})
             })
             .catch(function (error) {
@@ -76,7 +77,7 @@ class Quotes extends Component {
 
         this.api.get(URL.categoriesUrl)
             .then(function (response) {
-                let categories = self.addSelectedKey(response.data)
+                let categories = map(response.data, (item) => assign(item, {isSelected: 0}))
                 store.dispatch({type: filters.STORE_CATEGORIES, items: categories})
             })
             .catch(function (error) {
@@ -85,7 +86,7 @@ class Quotes extends Component {
 
         this.api.get(URL.tagsUrl)
             .then(function (response) {
-                let tags = self.addSelectedKey(response.data)
+                let tags = map(response.data, (item) => assign(item, {isSelected: 0}))
                 store.dispatch({type: filters.STORE_TAGS, items: tags})
             })
             .catch(function (error) {
@@ -208,16 +209,6 @@ class Quotes extends Component {
         }
 
         store.dispatch({type: modal.MODAL_OPEN})
-    }
-
-    addSelectedKey(param) {
-        let properties = JSON.parse(JSON.stringify(param))
-
-        properties.forEach(function (property) {
-            property.isSelected = 0
-        })
-
-        return properties
     }
 }
 

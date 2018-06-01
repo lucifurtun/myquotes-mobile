@@ -45,7 +45,7 @@ export const getQuotesSelector = (filters) => createSelector(
         let eligible = true
 
         if (!isEmpty(filters.author)) {
-            if (includes(filters.author, toString(item.author.id))) {
+            if (!isEmpty(item.author) && includes(filters.author, toString(item.author.id))) {
                 return true
             }
             else {
@@ -54,7 +54,7 @@ export const getQuotesSelector = (filters) => createSelector(
         }
 
         if (!isEmpty(filters.category)) {
-            if (includes(filters.author, toString(item.author.id))) {
+            if (!isEmpty(item.category) && includes(filters.category, toString(item.category.id))) {
                 return true
             }
             else {
@@ -65,7 +65,7 @@ export const getQuotesSelector = (filters) => createSelector(
         if (!isEmpty(filters.tag)) {
             let tagIds = map(item.tags, (tag) => tag.id)
 
-            if (some(tagIds, (item) => includes(filters.tag, toString(item)))) {
+            if (!isEmpty(item.tags) && some(tagIds, (item) => includes(filters.tag, toString(item)))) {
                 return true
             }
             else {

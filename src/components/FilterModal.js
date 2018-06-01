@@ -1,4 +1,4 @@
-import {Button, Modal, View, Text, StyleSheet} from "react-native"
+import {Button, Modal, View, StyleSheet} from "react-native"
 import React from "react"
 import {connect} from "react-redux"
 import {modal} from "../reducers"
@@ -8,17 +8,9 @@ const FilterModal = ({title, visible, dispatch}) => (
     <Modal
         visible={visible}
         animationType="slide"
-        onRequestClose={() => {
-        }}>
+        onRequestClose={() => {}}
+    >
         <View>
-            {
-                title && (
-                    <View>
-                        <Text>{title}</Text>
-                    </View>
-                )
-            }
-
             <View style={styles.container}>
                 <FilterQuotes/>
                 <Button

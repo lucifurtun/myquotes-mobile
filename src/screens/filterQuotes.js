@@ -146,8 +146,7 @@ function mapStateToProps(state) {
 
     return {
         properties: values(properties),
-        dispatcherType: dispatcherType,
-        selectedFilters: state.selectedFilters
+        dispatcherType: dispatcherType
     }
 }
 

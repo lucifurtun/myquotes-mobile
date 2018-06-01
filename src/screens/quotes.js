@@ -19,7 +19,7 @@ import {modal} from "../reducers"
 import {filters} from "../reducers"
 import {connect} from "react-redux"
 import {orderBy, pickBy, keys} from 'lodash'
-import {STORE_QUOTES} from "../reducers/quotes"
+import {STORE_QUOTES, getQuotesSelector} from "../reducers/quotes"
 
 const filterButtonWidth = Dimensions.get("window").width * 0.3
 
@@ -98,27 +98,14 @@ class Quotes extends Component {
             })
     }
 
-    getFilters() {
-        let author = keys(pickBy(this.props.filters.authors, (item) => item.isSelected))
-        let category = keys(pickBy(this.props.filters.categories, (item) => item.isSelected))
-        let tag = keys(pickBy(this.props.filters.tags, (item) => item.isSelected))
-
-        return {
-            author,
-            category,
-            tag
-        }
-    }
-
     fetchNextPage(nextPage) {
         let self = this
         let page = nextPage ? nextPage : this.props.currentPage
 
-        let filters = this.getFilters()
-
         let params = {
-            ...filters,
+            ...this.props.filters,
             page: page,
+            page_size: 200
         }
 
         let config = {
@@ -328,10 +315,20 @@ const style = StyleSheet.create({
 })
 
 function mapStateToProps(state) {
+    let authorIds = keys(pickBy(state.filters.authors, (item) => item.isSelected))
+    let categoryIds = keys(pickBy(state.filters.categories, (item) => item.isSelected))
+    let tagIds = keys(pickBy(state.filters.tags, (item) => item.isSelected))
+
+    let filters = {author: authorIds, category: categoryIds, tag: tagIds}
+
+    let quotes = getQuotesSelector(filters)(state)
+
+    console.log(filters)
+
     return {
-        quotes: state.quotes.results,
+        quotes: getQuotesSelector(filters)(state),
         currentPage: state.quotes.currentPage,
-        filters: state.filters
+        filters: filters
     }
 }
 

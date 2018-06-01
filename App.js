@@ -18,6 +18,8 @@ import {store, persistor} from "./src/store"
 import SideMenu from "./src/components/SideMenu"
 import ModalScreen from "./src/screens/test"
 import FilterModal from "./src/components/FilterModal"
+import {BackHandler} from "react-native"
+import {modal} from "./src/reducers"
 
 
 const QuotesNavigator = createStackNavigator({
@@ -55,12 +57,17 @@ class App extends React.Component {
             <Provider store={store}>
                 <PersistGate loading={null} persistor={persistor}>
                     <RootNavigator/>
-                    <FilterModal />
+                    <FilterModal/>
                 </PersistGate>
             </Provider>
         )
     }
 }
+
+BackHandler.addEventListener('hardwareBackPress', function () {
+    console.log('Back Happened')
+    store.dispatch({type: modal.MODAL_CLOSE})
+})
 
 
 AppRegistry.registerComponent('MyQuotes', () => App)

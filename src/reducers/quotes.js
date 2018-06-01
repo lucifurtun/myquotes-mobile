@@ -1,4 +1,5 @@
-import {keyBy} from 'lodash'
+import {includes, isEmpty, keyBy, pickBy, toString, map, some} from 'lodash'
+import {createSelector} from 'reselect'
 
 
 export const STORE_QUOTES = 'STORE_QUOTES'
@@ -37,3 +38,41 @@ export const quotes = (state = initialState, action) => {
 
     return state
 }
+
+export const getQuotesSelector = (filters) => createSelector(
+    (state) => state.quotes.results,
+    (quotes) => pickBy(quotes, (item) => {
+        let eligible = true
+
+        if (!isEmpty(filters.author)) {
+            if (includes(filters.author, toString(item.author.id))) {
+                return true
+            }
+            else {
+                eligible &= false
+            }
+        }
+
+        if (!isEmpty(filters.category)) {
+            if (includes(filters.author, toString(item.author.id))) {
+                return true
+            }
+            else {
+                eligible &= false
+            }
+        }
+
+        if (!isEmpty(filters.tag)) {
+            let tagIds = map(item.tags, (tag) => tag.id)
+
+            if (some(tagIds, (item) => includes(filters.tag, toString(item)))) {
+                return true
+            }
+            else {
+                eligible &= false
+            }
+        }
+
+        return eligible
+    })
+)

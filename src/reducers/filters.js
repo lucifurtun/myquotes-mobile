@@ -8,41 +8,26 @@ export const STORE_TAGS = 'STORE_TAGS'
 const initialState = {
     authors: [],
     categories: [],
-    tags: [],
-    selectedFilters: {
-        authors: [],
-        categories: [],
-        tags: []
-    }
+    tags: []
 }
 
 
 export const filters = (state = initialState, action) => {
-    console.log(state)
-    console.log(action)
-    let data = null
-
     switch (action.type) {
         case STORE_AUTHORS:
-            data = keyBy(action.items, 'id')
-
             return {
                 ...state,
-                authors: data
+                authors: keyBy(action.items, 'id')
             }
         case STORE_CATEGORIES:
-            data = keyBy(action.items, 'id')
-
             return {
                 ...state,
-                categories: data
+                categories: keyBy(action.items, 'id')
             }
         case STORE_TAGS:
-            data = keyBy(action.items, 'id')
-
             return {
                 ...state,
-                tags: data
+                tags: keyBy(action.items, 'id')
             }
     }
 

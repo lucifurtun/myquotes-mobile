@@ -21,7 +21,7 @@ function* resetQuotes(action) {
 }
 
 export function* saga() {
-    yield takeEvery(MODAL_CLOSE, resetQuotes)
+    // yield takeEvery(MODAL_CLOSE, resetQuotes)
 }
 
 

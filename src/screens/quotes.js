@@ -256,10 +256,6 @@ function mapStateToProps(state) {
 
     let filters = {author: authorIds, category: categoryIds, tag: tagIds}
 
-    let quotes = getQuotesSelector(filters)(state)
-
-    console.log(filters)
-
     return {
         quotes: getQuotesSelector(filters)(state),
         currentPage: state.quotes.currentPage,

@@ -55,7 +55,6 @@ class FilterQuotes extends Component {
     }
 
     onRowPress(property, index) {
-        console.log(index)
         let id = property.id
         let selected = this.state.selected
         if (selected[id]) {
@@ -74,7 +73,6 @@ class FilterQuotes extends Component {
         this.setState({
             selected: this.isSelected(newProperties)
         })
-
     }
 
     isSelected(properties) {

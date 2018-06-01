@@ -46,11 +46,6 @@ class Quotes extends Component {
 
     api = null
 
-    categories = []
-    authors = []
-    tags = []
-    activeFilters = []
-
     constructor(props) {
         super(props)
 
@@ -148,17 +143,17 @@ class Quotes extends Component {
             <View style={style.filterCell}>
                 <TouchableOpacity onPress={() => this.filterButtonPress('Categories')}>
                     <View style={style.buttonContainer}>
-                        <Text style={[this.isFilterBy('Categories')]}>Categories</Text>
+                        <Text>Categories</Text>
                     </View>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => this.filterButtonPress('Authors')}>
                     <View style={style.buttonContainer}>
-                        <Text style={[this.isFilterBy('Authors')]}>Authors</Text>
+                        <Text>Authors</Text>
                     </View>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => this.filterButtonPress('Tags')}>
                     <View style={style.buttonContainer}>
-                        <Text style={[this.isFilterBy('Tags')]}>Tags</Text>
+                        <Text>Tags</Text>
                     </View>
                 </TouchableOpacity>
             </View>
@@ -199,62 +194,20 @@ class Quotes extends Component {
 
     filterButtonPress(buttonName) {
         this.filterBy = buttonName
-        let properties = []
 
         switch (this.filterBy) {
             case 'Categories':
-                properties = this.categories
                 store.dispatch({type: modal.SET_FILTER, selectedFilterType: modal.FILTER_CATEGORIES})
                 break
             case 'Authors':
-                properties = this.authors
                 store.dispatch({type: modal.SET_FILTER, selectedFilterType: modal.FILTER_AUTHORS})
                 break
             case 'Tags':
-                properties = this.tags
                 store.dispatch({type: modal.SET_FILTER, selectedFilterType: modal.FILTER_TAGS})
-                break
-            default:
                 break
         }
 
         store.dispatch({type: modal.MODAL_OPEN})
-    }
-
-    modalDidClose(properties) {
-        this.activeFilters = []
-        this.state.url.filter = null
-
-        this.setState({
-            quotes: []
-        })
-
-        switch (this.filterBy) {
-            case 'Categories':
-                this.categories = properties
-                break
-            case 'Authors':
-                this.authors = properties
-                break
-            case 'Tags':
-                this.tags = properties
-                break
-            default:
-                break
-        }
-
-        if (this.state.url.updateFilterUrl(this.categories, 'category')) {
-            this.activeFilters.push('Categories')
-        }
-        if (this.state.url.updateFilterUrl(this.authors, 'author')) {
-            this.activeFilters.push('Authors')
-        }
-        if (this.state.url.updateFilterUrl(this.tags, 'tags')) {
-            this.activeFilters.push('Tags')
-        }
-
-        this.fetchNextPage(1)
-
     }
 
     addSelectedKey(param) {
@@ -266,15 +219,6 @@ class Quotes extends Component {
 
         return properties
     }
-
-    isFilterBy(filter) {
-        if (this.activeFilters.includes(filter)) {
-            return style.buttonTextFilter
-        } else {
-            return style.buttonText
-        }
-    }
-
 }
 
 const style = StyleSheet.create({

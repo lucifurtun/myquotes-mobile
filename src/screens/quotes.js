@@ -49,14 +49,6 @@ class Quotes extends Component {
     constructor(props) {
         super(props)
 
-        const self = this
-
-        let url = new URL()
-
-        this.state = {
-            url: url,
-        }
-
         let token = store.getState().auth.token
 
         let authorization = 'JWT ' + token
@@ -68,7 +60,6 @@ class Quotes extends Component {
         this.api.get(URL.authorsUrl)
             .then(function (response) {
                 let authors = map(response.data, (item) => assign(item, {isSelected: 0}))
-                console.log(authors)
                 store.dispatch({type: filters.STORE_AUTHORS, items: authors})
             })
             .catch(function (error) {
@@ -95,7 +86,8 @@ class Quotes extends Component {
     }
 
     fetchNextPage(nextPage) {
-        let self = this
+        dispatch = this.props.dispatch
+
         let page = nextPage ? nextPage : this.props.currentPage
 
         let params = {
@@ -113,7 +105,7 @@ class Quotes extends Component {
             this.api.get(URL.quotesUrl, config)
                 .then(function (response) {
                     let quotes = response.data.results
-                    self.props.dispatch({type: STORE_QUOTES, quotes: quotes, page: response.data.pages.next})
+                    dispatch({type: STORE_QUOTES, quotes: quotes, page: response.data.pages.next})
                 })
                 .catch(function (error) {
                     console.log(error)

@@ -87,7 +87,6 @@ export default class Login extends React.Component {
       let token = response.data.token;
       let email = self.state.textEmail
 
-        console.log(token)
       store.dispatch({type: 'SET_TOKEN', value: token})
 
       AsyncStorage.setItem('token', token, () => {

@@ -13,7 +13,7 @@ const initialState = {
 }
 
 
-export const quotes = (state = initialState, action) => {
+export const quotes = (state = initialState, action, rootState) => {
     switch (action.type) {
         case STORE_QUOTES:
             let data = keyBy([...state.results, ...action.quotes], 'id')

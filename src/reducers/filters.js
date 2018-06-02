@@ -12,7 +12,7 @@ const initialState = {
 }
 
 
-export const filters = (state = initialState, action) => {
+export const filters = (state = initialState, action, rootState) => {
     switch (action.type) {
         case STORE_AUTHORS:
             return {

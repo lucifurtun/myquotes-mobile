@@ -20,6 +20,7 @@ import {filters} from "../reducers"
 import {connect} from "react-redux"
 import {orderBy, pickBy, keys, assign, map} from 'lodash'
 import {STORE_QUOTES, getQuotesSelector} from "../reducers/quotes"
+import {api} from "../reducers"
 
 const filterButtonWidth = Dimensions.get("window").width * 0.3
 
@@ -53,7 +54,7 @@ class Quotes extends Component {
 
         let authorization = 'JWT ' + token
         this.api = axios.create({
-            timeout: 1000,
+            timeout: 2000,
             headers: {'Authorization': authorization}
         })
 
@@ -101,16 +102,18 @@ class Quotes extends Component {
             paramsSerializer: (params) => qs.stringify(params, {indices: false})
         }
 
-        if (page) {
-            this.api.get(URL.quotesUrl, config)
-                .then(function (response) {
-                    let quotes = response.data.results
-                    dispatch({type: STORE_QUOTES, quotes: quotes, page: response.data.pages.next})
-                })
-                .catch(function (error) {
-                    console.log(error)
-                })
-        }
+        dispatch({type: api.REQUEST, payload: {resource:api.RESOURCE_QUOTES, params: params}})
+        //
+        // if (page) {
+        //     this.api.get(URL.quotesUrl, config)
+        //         .then(function (response) {
+        //             let quotes = response.data.results
+        //             dispatch({type: STORE_QUOTES, quotes: quotes, page: response.data.pages.next})
+        //         })
+        //         .catch(function (error) {
+        //             console.log(error)
+        //         })
+        // }
     }
 
     render() {

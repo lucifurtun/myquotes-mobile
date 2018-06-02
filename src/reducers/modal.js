@@ -25,7 +25,7 @@ export function* saga() {
 }
 
 
-export const modal = (state = initialState, action) => {
+export const modal = (state = initialState, action, rootState) => {
     if (action.type === MODAL_OPEN) {
         return {
             ...state,

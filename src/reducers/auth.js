@@ -2,7 +2,7 @@ const initialState = {
     'token': null
 }
 
-export const auth = (state = initialState, action) => {
+export const auth = (state = initialState, action, rootState) => {
     if (action.type === 'SET_TOKEN') {
         return {token: action.value}
     }

@@ -14,6 +14,7 @@ import Color from '../styles'
 import {connect} from "react-redux"
 import {modal} from "../reducers"
 import {filters} from "../reducers"
+import {quotes} from "../reducers"
 
 class FilterQuotes extends Component {
 
@@ -68,6 +69,7 @@ class FilterQuotes extends Component {
         let newProperties = this.props.properties
         newProperties[index] = property
 
+        this.props.dispatch({type: quotes.SET_NEXT_PAGE, payload: {page: 1}})
         this.props.dispatch({type: this.props.dispatcherType, items: newProperties})
 
         this.setState({

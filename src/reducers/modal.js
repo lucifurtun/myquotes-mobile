@@ -1,5 +1,6 @@
 import {takeEvery, put} from "redux-saga/effects"
 import {quotes} from "."
+import {api} from "."
 
 export const MODAL_OPEN = 'MODAL_OPEN'
 export const MODAL_CLOSE = 'MODAL_CLOSE'
@@ -16,12 +17,13 @@ const initialState = {
 }
 
 
-function* resetQuotes(action) {
-    yield put({type: quotes.RESET_QUOTES})
+function* getNewQuotes(action) {
+    yield put({type: quotes.SET_NEXT_PAGE, payload: {page: 1}})
+    yield put({type: api.REQUEST_QUOTES})
 }
 
 export function* saga() {
-    // yield takeEvery(MODAL_CLOSE, resetQuotes)
+    yield takeEvery(MODAL_CLOSE, getNewQuotes)
 }
 
 

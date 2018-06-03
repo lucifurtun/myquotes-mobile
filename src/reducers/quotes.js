@@ -32,7 +32,7 @@ export const quotes = (state = initialState, action, rootState) => {
         case SET_NEXT_PAGE:
             return {
                 ...state,
-                currentPage: action.page
+                currentPage: action.payload.page
             }
     }
 

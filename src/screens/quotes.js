@@ -19,7 +19,7 @@ import {modal} from "../reducers"
 import {filters} from "../reducers"
 import {connect} from "react-redux"
 import {orderBy, pickBy, keys, assign, map} from 'lodash'
-import {STORE_QUOTES, getQuotesSelector} from "../reducers/quotes"
+import {getQuotesSelector} from "../reducers/quotes"
 import {api} from "../reducers"
 
 const filterButtonWidth = Dimensions.get("window").width * 0.3
@@ -86,36 +86,6 @@ class Quotes extends Component {
             })
     }
 
-    fetchNextPage(nextPage) {
-        dispatch = this.props.dispatch
-
-        let page = nextPage ? nextPage : this.props.currentPage
-
-        let params = {
-            ...this.props.filters,
-            page: page,
-            page_size: 200
-        }
-
-        let config = {
-            params: params,
-            paramsSerializer: (params) => qs.stringify(params, {indices: false})
-        }
-
-        dispatch({type: api.REQUEST, payload: {resource:api.RESOURCE_QUOTES, params: params}})
-        //
-        // if (page) {
-        //     this.api.get(URL.quotesUrl, config)
-        //         .then(function (response) {
-        //             let quotes = response.data.results
-        //             dispatch({type: STORE_QUOTES, quotes: quotes, page: response.data.pages.next})
-        //         })
-        //         .catch(function (error) {
-        //             console.log(error)
-        //         })
-        // }
-    }
-
     render() {
         return (
             <View style={style.container}>
@@ -127,7 +97,7 @@ class Quotes extends Component {
                     keyExtractor={(item) => {
                         return item.id
                     }}
-                    onEndReached={() => this.fetchNextPage(null)}
+                    onEndReached={() => this.props.dispatch({type: api.REQUEST_QUOTES})}
                     renderSectionHeader={() => this.renderHeader()}
                 />
             </View>

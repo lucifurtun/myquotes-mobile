@@ -8,7 +8,6 @@ import {PersistGate} from 'redux-persist/integration/react'
 
 
 import AddQuote from "./src/screens/addQuote"
-import FilterQuotes from "./src/screens/filterQuotes"
 import Loading from "./src/screens/loading"
 import Quotes from "./src/screens/quotes"
 import Login from "./src/screens/login"
@@ -16,7 +15,6 @@ import Login from "./src/screens/login"
 import {Provider} from "react-redux"
 import {store, persistor} from "./src/store"
 import SideMenu from "./src/components/SideMenu"
-import ModalScreen from "./src/screens/test"
 import FilterModal from "./src/components/FilterModal"
 import {BackHandler} from "react-native"
 import {modal} from "./src/reducers"
@@ -25,8 +23,6 @@ import {modal} from "./src/reducers"
 const QuotesNavigator = createStackNavigator({
     quotes: {screen: Quotes},
     addQuote: {screen: AddQuote},
-    filterQuotes: {screen: FilterQuotes},
-    test: {screen: ModalScreen}
 }, {
     mode: 'modal',
     headerMode: 'none',

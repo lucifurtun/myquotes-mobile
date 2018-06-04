@@ -1,18 +1,17 @@
 import AppReducer from "./reducers/AppReducer"
 import {applyMiddleware, createStore} from 'redux'
 import {persistStore, persistReducer} from 'redux-persist'
+import {AsyncStorage} from 'react-native'
 import createSagaMiddleware from 'redux-saga'
 import {fork, all} from 'redux-saga/effects'
 import {map, reduce, compact, has} from 'lodash'
 import * as reduxModules from './reducers'
 
-import storage from 'redux-persist/lib/storage'
-
 
 const persistConfig = {
     key: 'root',
-    whitelist : ['auth'],
-    storage,
+    whitelist: ['auth'],
+    storage: AsyncStorage,
 }
 
 const persistedReducer = persistReducer(persistConfig, AppReducer)

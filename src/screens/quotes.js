@@ -222,9 +222,7 @@ function mapStateToProps(state) {
     let filters = {author: authorIds, category: categoryIds, tag: tagIds}
 
     return {
-        quotes: getQuotesSelector(filters)(state),
-        currentPage: state.quotes.currentPage,
-        filters: filters
+        quotes: getQuotesSelector(filters)(state)
     }
 }
 

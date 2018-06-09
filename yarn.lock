@@ -4422,13 +4422,6 @@ react-native-tab-view@~0.0.77:
   dependencies:
     prop-types "^15.6.0"
 
-react-native-tag-input@^0.0.19:
-  version "0.0.19"
-  resolved "https://registry.yarnpkg.com/react-native-tag-input/-/react-native-tag-input-0.0.19.tgz#2649d4d2d88a013bbb422f112fcf4d5bb1748249"
-  dependencies:
-    invariant "^2.2.2"
-    prop-types "^15.5.10"
-
 react-native-vector-icons@^4.6.0:
   version "4.6.0"
   resolved "https://registry.yarnpkg.com/react-native-vector-icons/-/react-native-vector-icons-4.6.0.tgz#e4014311ffa6de397d914ffc31b7097a874cc8d5"

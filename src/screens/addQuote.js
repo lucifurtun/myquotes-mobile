@@ -5,16 +5,19 @@ import {
     View,
     ScrollView,
     StyleSheet,
-    Alert
+    Alert,
+    Button
 } from 'react-native'
 
 import Color from '../styles'
 import MultiSelect from 'react-native-multiple-select'
 import {reduxForm, Field} from "redux-form"
 import Input from "../components/Input"
+import Switch from "../components/Switch"
 import Select from "../components/Select"
 import {connect} from "react-redux"
-import {values, map, assign, toString} from 'lodash'
+import {values, map, assign} from 'lodash'
+import {quotes} from "../reducers"
 
 
 let QuoteForm = (props) => {
@@ -28,6 +31,12 @@ let QuoteForm = (props) => {
                 multiline={true}
                 numberOfLines={0}
                 component={Input}
+            />
+
+            <Field
+                label='Private'
+                name='private'
+                component={Switch}
             />
 
             <Field
@@ -53,6 +62,21 @@ let QuoteForm = (props) => {
                 items={props.tags}
                 single={false}
             />
+
+            <Field
+                name='text'
+                label='Text'
+                multiline={true}
+                numberOfLines={5}
+                component={Input}
+            />
+
+            <Button
+                title="Submit"
+                onPress={props.handleSubmit(props.submitForm)}
+                color={Color.primary}
+            />
+
         </ScrollView>
 
     )
@@ -62,13 +86,19 @@ QuoteForm = reduxForm({form: 'quotes'})(QuoteForm)
 
 function mapStateToProps(state) {
     return {
-        authors: map(state.filters.authors, (item) => assign(item, {key: toString(item.id)})),
-        categories: map(state.filters.categories, (item) => assign(item, {key: toString(item.id)})),
-        tags: map(state.filters.tags, (item) => assign(item, {key: toString(item.id)})),
+        authors: map(state.filters.authors, (item) => assign(item, {key: item.name})),
+        categories: map(state.filters.categories, (item) => assign(item, {key: item.name})),
+        tags: map(state.filters.tags, (item) => assign(item, {key: item.name})),
     }
 }
 
-QuoteForm = connect(mapStateToProps)(QuoteForm)
+const mapDispatchToProps = {
+    submitForm: (payload) => {
+        return {type: quotes.QUOTES_FORM_SUBMITTED, payload}
+    }
+}
+
+QuoteForm = connect(mapStateToProps, mapDispatchToProps)(QuoteForm)
 
 
 export default class AddQuote extends Component {
@@ -114,7 +144,7 @@ export default class AddQuote extends Component {
 
     render() {
         return (
-            <QuoteForm initialValues={{tags: []}}/>
+            <QuoteForm initialValues={{author: [], category: [], tags: [], private: false}}/>
         )
 
         return (

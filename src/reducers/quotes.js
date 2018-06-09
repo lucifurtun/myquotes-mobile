@@ -3,9 +3,9 @@ import {createSelector} from 'reselect'
 
 
 export const STORE_QUOTES = 'STORE_QUOTES'
-export const RESET_QUOTES = 'RESET_QUOTES'
 export const SET_NEXT_PAGE = 'SET_NEXT_PAGE'
 
+export const QUOTES_FORM_SUBMITTED = 'QUOTES_FORM_SUBMITTED'
 
 const initialState = {
     results: [],
@@ -22,12 +22,6 @@ export const quotes = (state = initialState, action, rootState) => {
                 ...state,
                 results: {...state.results, ...data},
                 currentPage: action.page
-            }
-        case RESET_QUOTES:
-            return {
-                ...state,
-                results: [],
-                currentPage: 1,
             }
         case SET_NEXT_PAGE:
             return {

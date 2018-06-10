@@ -144,7 +144,7 @@ export default class AddQuote extends Component {
 
     render() {
         return (
-            <QuoteForm initialValues={{author: [], category: [], tags: [], private: false}}/>
+            <QuoteForm initialValues={{tags: [], private: false}}/>
         )
 
         return (

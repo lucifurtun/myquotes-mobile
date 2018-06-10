@@ -9,8 +9,6 @@ export default class Select extends Component {
         const {input, label, single, items} = this.props
         const {onChange, value} = input
 
-        console.log(value)
-
         return (
             <MultiSelect
                 items={items}

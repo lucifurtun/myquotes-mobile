@@ -4,7 +4,7 @@ import URL from '../services/url'
 import axios from "axios"
 import qs from "qs"
 import {STORE_QUOTES} from "./quotes"
-import {keys, pickBy} from "lodash"
+import {keys, pickBy, has} from "lodash"
 
 export const RESOURCE_QUOTES = 'quotes'
 
@@ -25,7 +25,8 @@ const resources = {
     [RESOURCE_QUOTES]: {
         endpoint: 'quotes',
         dispatcher: {
-            'GET': STORE_QUOTES
+            'GET': STORE_QUOTES,
+            'POST': STORE_QUOTES
         }
     }
 }
@@ -43,28 +44,33 @@ export const api = (state = initialState, action, rootState) => {
     return state
 }
 
-function* performRequest({payload}) {
+function* performResourceRequest({payload}) {
     console.log(payload)
-    const {resource, params} = payload
+    const {resource, method, params, data} = payload
     const endpoint = resources[resource].endpoint
-    const method = 'GET'
 
     const dispatcher = resources[resource].dispatcher[method]
-    console.log(resources)
-
 
     let config = {
         url: `${URL.base}${endpoint}/`,
         method: method,
         params: params,
+        data: data,
         paramsSerializer: (query) => qs.stringify(query, {indices: false})
     }
 
     try {
         let response = yield call(http.request, config)
-        let quotes = response.data.results
-        yield put({type: dispatcher, quotes: quotes, page: response.data.pages.next})
-        console.log(quotes)
+
+        console.log(response)
+
+        if (has(response.data, 'results')) {
+            let quotes = response.data.results
+            yield put({type: dispatcher, quotes: quotes, page: response.data.pages.next})
+        }
+        else {
+            yield put({type: dispatcher, quotes: [response.data], page: 1})
+        }
     }
     catch (exception) {
         console.error(exception)
@@ -86,12 +92,18 @@ function* requestQuotes() {
             page_size: 10
         }
 
-        yield put({type: REQUEST, payload: {resource: RESOURCE_QUOTES, params: params}})
+        const payload = {
+            resource: RESOURCE_QUOTES,
+            params: params,
+            method: 'GET'
+        }
+
+        yield put({type: REQUEST, payload: payload})
     }
 
 }
 
 export function* saga() {
     yield throttle(200, REQUEST_QUOTES, requestQuotes)
-    yield takeEvery(REQUEST, performRequest)
+    yield takeEvery(REQUEST, performResourceRequest)
 }

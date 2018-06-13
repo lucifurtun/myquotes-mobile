@@ -8,7 +8,7 @@ const SwitchInput = (props) => {
 
     return (
         <View style={{flexDirection: 'row', height: 50}}>
-            <Text>{label}</Text>
+            <Text style={{justifyContent: 'center', lineHeight: 45}}>{label}</Text>
             <Switch
                 onValueChange={onChange}
                 value={value}

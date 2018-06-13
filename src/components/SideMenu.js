@@ -10,7 +10,7 @@ const SideMenu = ({navigation}) => {
         <Container>
             <SideMenuItem
                 title="Add a quote"
-                icon="md/format-quote"
+                icon="md/add"
                 onPress={() => navigation.navigate('addQuote')}
             />
             <SideMenuItem
